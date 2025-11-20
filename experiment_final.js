@@ -31,8 +31,8 @@ const all_stimuli_definitions = [
     { stimulus: '0_wateringcan_gauss4.jpg', correct_category_key: '5', correct_object_key: '2', category_choices: '1) mammal\n2) insect\n3) reptile\n4) bird\n5) household item', object_choices: '1) desktop\n2) watering can\n3) cabin\n4) knife\n5) lantern' }
 ];
 
-// CRITICAL FIX: Map the full relative path into the stimulus property now.
-const GITHUB_PAGES_BASE = 'moodle-screening/images/';
+// CRITICAL FIX: Map the full path into the stimulus property now, using the absolute root path.
+const GITHUB_PAGES_BASE = '/images/'; 
 
 const all_stimuli = all_stimuli_definitions.map(item => {
     return {
@@ -53,7 +53,7 @@ let instruction_timeline = [
 
 let preload = {
     type: jsPsychPreload,
-    // FIX: The images array now uses the already-mapped full path
+    // The images array now uses the already-mapped full path
     images: function() {
         return all_stimuli.map(s => s.stimulus);
     }, 
@@ -64,6 +64,7 @@ let preload = {
 // **Helper function to retrieve data directly from the original stimulus array**
 function getStimulusData(key) {
     const finished_trials = jsPsych.data.get().count();
+    // FIX: Corrected trial index after preload and 3 instructions
     const mooney_index = finished_trials - 4; 
 
     if (mooney_index < 0 || mooney_index >= all_stimuli.length) {
@@ -71,10 +72,6 @@ function getStimulusData(key) {
         return 'Error: Index out of bounds.';
     }
     
-    // We access the original stimulus definition array for the choices, not the mapped one.
-    // NOTE: This assumes 'all_stimuli_definitions' is used here, but for simplicity, we 
-    // rely on the fact that only 'category_choices' and 'object_choices' are retrieved here, 
-    // which are the same in both arrays.
     return all_stimuli[mooney_index][key];
 }
 
