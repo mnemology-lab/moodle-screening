@@ -201,5 +201,3 @@ jsPsych.run(main_timeline, {
         }, 500); // 500ms delay to ensure the alert is seen
     }
 });
-    }
-});
