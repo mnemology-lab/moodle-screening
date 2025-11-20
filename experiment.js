@@ -17,7 +17,7 @@ function getParameterByName(name, url = window.location.href) {
 }
 
 // -----------------------------------------------------------
-// 2. STIMULI DEFINITION
+// 2. STIMULI DEFINITION (Confirmed Correct)
 // -----------------------------------------------------------
 const all_stimuli = [
     { stimulus: IMAGE_BASE_URL + 'A_cougar_sigma_3.jpg', correct_category_key: '1', correct_object_key: '3', category_choices: '1) mammal\n2) insect\n3) reptile\n4) household item\n5) bird', object_choices: '1) bunny\n2) rat\n3) cougar\n4) mountain\n5) crocodile' },
@@ -66,11 +66,14 @@ const mooney_trial_template = {
             }
         },
         
-        // C. CATEGORY RESPONSE (5 seconds max) - TEMPORARY DEBUG
+        // C. CATEGORY RESPONSE (5 seconds max) - FIX APPLIED
         {
             type: jsPsychHtmlKeyboardResponse,
-            // *** CRITICAL CHANGE: USING STATIC STRING TO BYPASS THE ERROR ***
-            stimulus: '<h2>TEST: Timeline Advanced!</h2><p>Press 1 to continue to the next step.</p>',
+            stimulus: function(){
+                // *** FIX: Get variable first, then call replace on the variable ***
+                const category_options = jsPsych.timelineVariable('category_choices');
+                return '<p style="font-size: 24px;">Choose the correct category (Press 1-5):</p>' + '<div class="stimulus-text-container">' + category_options.replace(/\n/g, '<br>') + '</div>';
+            },
             
             choices: ['1', '2', '3', '4', '5'],
             trial_duration: 5000, 
@@ -82,11 +85,13 @@ const mooney_trial_template = {
             }
         },
         
-        // D. OBJECT RESPONSE (5 seconds max) 
+        // D. OBJECT RESPONSE (5 seconds max) - FIX APPLIED (This caused the last crash)
         {
             type: jsPsychHtmlKeyboardResponse,
             stimulus: function(){
-                return '<p style="font-size: 24px;">Choose the exact object (Press 1-5):</p>' + '<div class="stimulus-text-container">' + jsPsych.timelineVariable('object_choices').replace(/\n/g, '<br>') + '</div>';
+                // *** FIX: Get variable first, then call replace on the variable ***
+                const object_options = jsPsych.timelineVariable('object_choices');
+                return '<p style="font-size: 24px;">Choose the exact object (Press 1-5):</p>' + '<div class="stimulus-text-container">' + object_options.replace(/\n/g, '<br>') + '</div>';
             },
             choices: ['1', '2', '3', '4', '5'],
             trial_duration: 5000, 
