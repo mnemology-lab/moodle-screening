@@ -18,7 +18,7 @@ function getParameterByName(name, url = window.location.href) {
 // -----------------------------------------------------------
 // 2. STIMULI DEFINITION (The source of truth for data)
 // -----------------------------------------------------------
-// FIX: Use the simple relative path 'images/' again
+// FIX: Use the simple relative path 'images/'
 const GITHUB_PAGES_BASE = 'images/'; 
 
 const all_stimuli_definitions = [
@@ -62,16 +62,16 @@ let preload = {
 
 // **Helper function to retrieve data directly from the original stimulus array**
 function getStimulusData(key) {
-    const finished_trials = jsPsych.data.get().count();
-    // FIX: Corrected trial index after preload and 3 instructions to account for all preceding trials
-    const mooney_index = finished_trials - 5; 
+    // FIX: Use the stable timeline index (loop index) to look up stimulus data.
+    // This index is unaffected by instruction or preload trials.
+    const current_loop_index = jsPsych.getTimelineIndex(); 
 
-    if (mooney_index < 0 || mooney_index >= all_stimuli.length) {
-        console.error(`Index out of bounds: ${mooney_index}`);
+    if (current_loop_index < 0 || current_loop_index >= all_stimuli.length) {
+        console.error(`Index out of bounds: ${current_loop_index}`);
         return 'Error: Index out of bounds.';
     }
     
-    return all_stimuli[mooney_index][key];
+    return all_stimuli[current_loop_index][key];
 }
 
 
