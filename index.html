@@ -6,16 +6,38 @@
     
     <style>
         body {
+            /* FIX 1: Set background, font, and centering */
             background-color: black;
             color: white;
+            font-family: "Open Sans", "Arial", sans-serif; /* FIX 2: Set a common, clean font */
+            text-align: center; /* Center block-level elements */
         }
+        
+        /* Ensure the main jsPsych container is also centered */
+        #jspsych-display {
+            margin: 0 auto; /* Center the display container horizontally */
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh; /* Ensure it takes up the full viewport height */
+        }
+
         /* This ensures the text containers for choices also look correct */
         .stimulus-text-container {
             color: white;
             text-align: left;
             font-size: 20px;
             line-height: 1.6;
-            white-space: pre-wrap; /* Ensures the \n creates new lines */
+            white-space: pre-wrap;
+            margin: 0 auto;
+            max-width: 600px; /* Optional: Constrain width for readability */
+        }
+        
+        /* Ensure H2 elements within the jsPsych trials are white */
+        h2 {
+            color: white;
         }
     </style>
     
