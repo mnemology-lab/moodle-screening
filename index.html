@@ -2,43 +2,63 @@
 <html>
 <head>
     <title>Mooney Screening Task</title>
-    <link rel="stylesheet" href="jspsych/css/jspsych.css"> 
+
+    <link rel="stylesheet" href="/YOUR_REPO_NAME/jspsych/css/jspsych.css"> 
     
     <style>
         body {
-            /* FIX 1: Set background, font, and centering */
+            /* Basic body styling */
             background-color: black;
             color: white;
-            font-family: "Open Sans", "Arial", sans-serif; /* FIX 2: Set a common, clean font */
-            text-align: center; /* Center block-level elements */
+            font-family: "Open Sans", "Arial", sans-serif; 
+            text-align: center;
+            font-size: 18px; 
+            line-height: 1.6; 
         }
         
-        /* Ensure the main jsPsych container is also centered */
+        /* Ensure the main jsPsych container is centered and takes full height */
         #jspsych-display {
-            margin: 0 auto; /* Center the display container horizontally */
+            margin: 0 auto;
             width: 100%;
             height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh; /* Ensure it takes up the full viewport height */
+            min-height: 100vh;
         }
 
-        /* This ensures the text containers for choices also look correct */
+        /* Image Sizing for Consistency and Quality */
+        #jspsych-display img {
+            max-width: 600px; 
+            max-height: 600px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            margin: 20px 0;
+        }
+
+        /* Text Styling */
+        h2 {
+            color: white;
+            font-size: 28px;
+            margin-bottom: 20px;
+        }
+        
         .stimulus-text-container {
             color: white;
             text-align: left;
-            font-size: 20px;
-            line-height: 1.6;
-            white-space: pre-wrap;
-            margin: 0 auto;
-            max-width: 600px; /* Optional: Constrain width for readability */
+            font-size: 22px; 
+            line-height: 1.8; 
+            white-space: pre-wrap; 
+            margin: 20px auto;
+            max-width: 600px; 
         }
         
-        /* Ensure H2 elements within the jsPsych trials are white */
-        h2 {
-            color: white;
+        #jspsych-content p {
+            font-size: 20px;
+            line-height: 1.7;
         }
+
     </style>
     
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -47,13 +67,13 @@
     
     <div id="jspsych-display"></div>
 
-    <script src="jspsych/jspsych.js"></script>
+    <script src="/YOUR_REPO_NAME/jspsych/jspsych.js"></script>
 
-    <script src="jspsych/plugin-preload.js"></script>
-    <script src="jspsych/plugin-html-keyboard-response.js"></script>
-    <script src="jspsych/plugin-image-keyboard-response.js"></script>
+    <script src="/YOUR_REPO_NAME/jspsych/plugin-preload.js"></script>
+    <script src="/YOUR_REPO_NAME/jspsych/plugin-html-keyboard-response.js"></script>
+    <script src="/YOUR_REPO_NAME/jspsych/plugin-image-keyboard-response.js"></script>
 
-    <script src="experiment_final.js"></script>
+    <script src="/YOUR_REPO_NAME/experiment_final.js"></script>
     
 </body>
 </html>
