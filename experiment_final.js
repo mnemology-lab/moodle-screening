@@ -22,7 +22,7 @@ function getParameterByName(name, url = window.location.href) {
 const all_stimuli = [
     { stimulus: IMAGE_BASE_URL + 'A_cougar_sigma_3.jpg', correct_category_key: '1', correct_object_key: '3', category_choices: '1) mammal\n2) insect\n3) reptile\n4) household item\n5) bird', object_choices: '1) bunny\n2) rat\n3) cougar\n4) mountain\n5) crocodile' },
     { stimulus: IMAGE_BASE_URL + 'A_bee_sigma_7.jpg', correct_category_key: '1', correct_object_key: '3', category_choices: '1) insect\n2) mammal\n3) reptile\n4) household item\n5) bird', object_choices: '1) spider\n2) cactus\n3) bee\n4) clown\n5) octopus' },
-    { stimulus: IMAGE_BASE_URL + '0_dolphin.new_gauss3.jpg', correct_category_key: '2', correct_object_key: '4', category_choices: '1) insect\n2) mammal\n3) reptile\n4) household item\n5) bird', object_choices: '1) duck\n2) ant\n3) crocodile\n4) dolphin\n5) horse' },
+    { stimulus: IMAGE_BASEURL + '0_dolphin.new_gauss3.jpg', correct_category_key: '2', correct_object_key: '4', category_choices: '1) insect\n2) mammal\n3) reptile\n4) household item\n5) bird', object_choices: '1) duck\n2) ant\n3) crocodile\n4) dolphin\n5) horse' },
     { stimulus: IMAGE_BASE_URL + '0_ant_gauss2.jpg', correct_category_key: '2', correct_object_key: '4', category_choices: '1) bird\n2) insect\n3) reptile\n4) household item\n5) mammal', object_choices: '1) bat\n2) butterfly\n3) dog\n4) ant\n5) chicken' },
     { stimulus: IMAGE_BASE_URL + '0_pigeon_filt1_gauss2.jpg', correct_category_key: '4', correct_object_key: '5', category_choices: '1) mammal\n2) insect\n3) reptile\n4) bird\n5) household item', object_choices: '1) oyster\n2) leaf\n3) nursery\n4) turtle\n5) pigeon' },
     { stimulus: IMAGE_BASE_URL + '0_sloth_gauss4.jpg', correct_category_key: '4', correct_object_key: '5', category_choices: '1) household item\n2) insect\n3) reptile\n4) mammal\n5) bird', object_choices: '1) squirrel\n2) crab\n3) monkey\n4) panda\n5) sloth' },
@@ -49,23 +49,23 @@ let preload = {
 
 // **Helper function to retrieve data directly from the original stimulus array**
 function getStimulusData(key) {
-    // FIX: Corrected typo from get-current-timeline-node to getCurrentTimelineNode
-    const node = jsPsych.getCurrentTimelineNode();
+    // FIX: Using all_data to calculate the index of the current trial
+    // This counts all trials that have *finished* (instructions + preload + previous test trials)
+    const finished_trials = jsPsych.data.get().count();
     
-    // The current trial index within the main timeline node (0 to 7)
-    // FIX: Corrected typo from .get-current-timeline-node() to getCurrentTimelineNode()
-    const index = node.iteration; 
-    
-    // Safety check just in case the node is wrong 
-    if (index === undefined) {
-        // Fallback for unexpected jsPsych structure
-        const timeline = jsPsych.data.get().select('task_part').values;
-        // This index logic depends on the number of non-test trials before the first test trial (3 trials)
-        return all_stimuli[timeline.length - 3][key];
+    // We have 3 introductory trials (preload, 2 instructions) before the first test trial (index 0)
+    // The current trial index within the mooney block is the total number of finished trials minus 3.
+    const mooney_index = finished_trials - 3; 
+
+    // Safety check
+    if (mooney_index < 0 || mooney_index >= all_stimuli.length) {
+        console.error(`Index out of bounds: ${mooney_index}`);
+        // Return a reliable string (e.g., the error string) to prevent further crashes
+        return 'Error: Index out of bounds.';
     }
     
-    // This reliably pulls the data from the source array
-    return all_stimuli[index][key];
+    // This reliably pulls the data from the source array based on completed trials
+    return all_stimuli[mooney_index][key];
 }
 
 
