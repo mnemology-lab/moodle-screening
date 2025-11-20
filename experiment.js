@@ -5,7 +5,7 @@
 // Initialize jsPsych, setting the display element ID defined in index.html
 const jsPsych = initJsPsych({ display_element: 'jspsych-display' });
 
-// This path points to your hosted image folder
+// This path points to your hosted GitHub image folder.
 const IMAGE_BASE_URL = 'images/'; 
 let current_score = 0; 
 const total_trials = 8;
@@ -22,8 +22,9 @@ function getParameterByName(name, url = window.location.href) {
 }
 
 // -----------------------------------------------------------
-// 2. STIMULI DEFINITION (Omitted for brevity, assume this is correct)
+// 2. STIMULI DEFINITION
 // -----------------------------------------------------------
+
 const all_stimuli = [
     { stimulus: IMAGE_BASE_URL + 'A_cougar_sigma_3.jpg', correct_category_key: '1', correct_object_key: '3', category_choices: '1) mammal\n2) insect\n3) reptile\n4) household item\n5) bird', object_choices: '1) bunny\n2) rat\n3) cougar\n4) mountain\n5) crocodile' },
     { stimulus: IMAGE_BASE_URL + 'A_bee_sigma_7.jpg', correct_category_key: '1', correct_object_key: '3', category_choices: '1) insect\n2) mammal\n3) reptile\n4) household item\n5) bird', object_choices: '1) spider\n2) cactus\n3) bee\n4) clown\n5) octopus' },
@@ -36,22 +37,29 @@ const all_stimuli = [
 ];
 
 // -----------------------------------------------------------
-// 3. TRIAL DEFINITION (Omitted for brevity, assume this is correct)
+// 3. TRIAL DEFINITION
 // -----------------------------------------------------------
+
 let instruction_timeline = [
     { type: jsPsychHtmlKeyboardResponse, stimulus: `<h2>Object Recognition Task</h2><p><strong>Welcome.</strong></p><p>You will see black-and-white Mooney images. Try to identify the object.</p><p style="margin-top: 30px;">Press the <strong>SPACEBAR</strong> to continue.</p>`, choices: [' '] },
     { type: jsPsychHtmlKeyboardResponse, stimulus: `<h2>Instructions</h2><p>Press <strong>Enter</strong> the moment you think you see the object (max 20s).</p><p>You will then have 5s for the category choice and 5s for the object choice.</p><p><strong>Use the number keys (1, 2, 3, 4, 5).</strong></p><p style="margin-top: 30px;">Press the <strong>SPACEBAR</strong> to continue.</p>`, choices: [' '] },
     { type: jsPsychHtmlKeyboardResponse, stimulus: `<h2>Screening Trials</h2><p>We will start with 8 screening trials. You need ${cutoff_score * 100}% correct to proceed.</p><p style="margin-top: 30px;">Click <strong>Enter</strong> to start the task.</p>`, choices: ['Enter'] }
 ];
+
+// PRELOAD TRIAL
 let preload = {
     type: jsPsychPreload,
     images: all_stimuli.map(s => s.stimulus),
     message: '<p style="font-size: 24px;">Please wait while the experiment loads...</p>',
     show_progress_bar: true, auto_translate: false, continue_after_error: false
 };
+
 const mooney_trial_template = {
     timeline: [
+        // A. FIXATION CROSS (500ms)
         { type: jsPsychHtmlKeyboardResponse, stimulus: '<div style="font-size:60px;">+</div>', choices: "NO_KEYS", trial_duration: 500 },
+        
+        // B. MOONEY IMAGE & RT COLLECTION (20 seconds max)
         {
             type: jsPsychImageKeyboardResponse,
             stimulus: jsPsych.timelineVariable('stimulus'),
@@ -59,10 +67,13 @@ const mooney_trial_template = {
             trial_duration: 20000, 
             data: { task_part: 'Image_Recognition', stimulus_filename: jsPsych.timelineVariable('stimulus') },
             on_finish: function(data) {
+                // Record if ENTER was pressed (if response is null, it was a timeout/no press)
                 data.recognized = data.response !== null;
                 jsPsych.data.get().addToLast({ image_recognized: data.recognized });
             }
         },
+        
+        // C. CATEGORY RESPONSE (5 seconds max) - ALWAYS RUNS
         {
             type: jsPsychHtmlKeyboardResponse,
             stimulus: function(){
@@ -77,6 +88,8 @@ const mooney_trial_template = {
                 jsPsych.data.get().addToLast({ category_correct: data.correct_A });
             }
         },
+        
+        // D. OBJECT RESPONSE (5 seconds max) - ALWAYS RUNS
         {
             type: jsPsychHtmlKeyboardResponse,
             stimulus: function(){
@@ -85,9 +98,12 @@ const mooney_trial_template = {
             choices: ['1', '2', '3', '4', '5'],
             trial_duration: 5000, 
             data: { task_part: 'Object_Choice', correct_response: jsPsych.timelineVariable('correct_object_key') },
+            
             on_finish: function(data) {
                 data.answered_B = data.response !== null;
                 data.correct_B = jsPsych.pluginAPI.compareKeys(data.response, data.correct_response);
+                
+                // Score only if the object response was correct.
                 if (data.correct_B) { current_score++; }
             }
         }
@@ -105,10 +121,8 @@ main_timeline.push(preload);
 main_timeline = main_timeline.concat(instruction_timeline);
 main_timeline.push(mooney_trial_template);
 
-// *** JATOS WRAPPER: The experiment now waits for JATOS to load before starting ***
-jatos.onLoad(function() {
-    jsPsych.run(main_timeline);
-});
+// *** STANDARD JSPSYCH STARTUP (NO JATOS WRAPPER) ***
+jsPsych.run(main_timeline);
 
 // -----------------------------------------------------------
 // 5. FINISH EXPERIMENT AND REDIRECT TO QUALTRICS
