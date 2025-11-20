@@ -1,13 +1,19 @@
 // -----------------------------------------------------------
 // 1. INITIALIZATION AND GLOBAL VARIABLES
 // -----------------------------------------------------------
-const jsPsych = initJsPsych({ display_element: 'jspsych-display' }); 
-let current_score = 0; // Legacy score tracker
-const cutoff_score = 0.4; // 40% threshold
+// Initialize jsPsych with the display element.
+// FIX: The default_iti: 1 setting resolves the Firefox "AudioContext" initialization error.
+const jsPsych = initJsPsych({ 
+    display_element: 'jspsych-display',
+    default_iti: 1, // 1 millisecond gap between trials
+}); 
+let current_score = 0; 
+const total_trials = 8;
+const cutoff_score = 0.4; 
 
 /**
  * Helper function to retrieve a URL parameter by name.
- * This is crucial for getting the Qualtrics Response ID.
+ * Crucial for extracting the Qualtrics Response ID ('participant').
  */
 function getParameterByName(name, url = window.location.href) {
     name = name.replace(/[\[\]]/g, '\\$&');
@@ -19,7 +25,7 @@ function getParameterByName(name, url = window.location.href) {
 }
 
 // -----------------------------------------------------------
-// 2. STIMULI DEFINITION (The source of truth for data)
+// 2. STIMULI DEFINITION
 // -----------------------------------------------------------
 const GITHUB_PAGES_BASE = 'images/'; 
 
@@ -34,16 +40,12 @@ const all_stimuli_definitions = [
     { stimulus: '0_wateringcan_gauss4.jpg', correct_category_key: '5', correct_object_key: '2', category_choices: '1) mammal\n2) insect\n3) reptile\n4) bird\n5) household item', object_choices: '1) desktop\n2) watering can\n3) cabin\n4) knife\n5) lantern' }
 ];
 
-// Map the full relative path into the stimulus property now.
 const all_stimuli = all_stimuli_definitions.map(item => {
-    return {
-        ...item, 
-        stimulus: GITHUB_PAGES_BASE + item.stimulus 
-    };
+    return { ...item, stimulus: GITHUB_PAGES_BASE + item.stimulus };
 });
 
 // -----------------------------------------------------------
-// 3. TRIAL DEFINITION
+// 3. TRIAL DEFINITIONS
 // -----------------------------------------------------------
 
 let instruction_timeline = [
@@ -54,118 +56,64 @@ let instruction_timeline = [
 
 let preload = {
     type: jsPsychPreload,
-    images: function() {
-        return all_stimuli.map(s => s.stimulus);
-    }, 
+    images: function() { return all_stimuli.map(s => s.stimulus); }, 
     message: '<p style="font-size: 24px;">Please wait while the experiment loads...</p>',
     show_progress_bar: true, auto_translate: false, continue_after_error: false
 };
 
-// Helper function to reliably retrieve data via filtration
 function getStimulusData(key) {
     const image_trial_data = jsPsych.data.get().filter({task_part: 'Image_Recognition'}).last(1).values()[0];
-    
-    if (!image_trial_data || !image_trial_data.stimulus_filename) {
-        // If data retrieval fails, return an error message
-        console.error("Could not retrieve image trial data by filtering for task_part: 'Image_Recognition'.");
-        return 'Error: Index lookup failed.';
-    }
-
+    if (!image_trial_data || !image_trial_data.stimulus_filename) { return 'Error: Index lookup failed.'; }
     const current_stimulus_path = image_trial_data.stimulus_filename;
-    
-    const stimulus_data_match = all_stimuli.find(
-        item => item.stimulus === current_stimulus_path
-    );
-
-    if (!stimulus_data_match) {
-        console.error(`Stimulus data not found for path: ${current_stimulus_path}`);
-        return 'Error: Failed to retrieve category choices.';
-    }
-    
+    const stimulus_data_match = all_stimuli.find(item => item.stimulus === current_stimulus_path);
+    if (!stimulus_data_match) { return 'Error: Failed to retrieve category choices.'; }
     return stimulus_data_match[key];
 }
 
-
 const mooney_trial_template = {
     timeline: [
-        // A. FIXATION CROSS (500ms)
-        { 
-            type: jsPsychHtmlKeyboardResponse, 
-            stimulus: '<div style="font-size:60px; color: white;">+</div>', 
-            choices: "NO_KEYS", 
-            trial_duration: 500 
-        },
-        
-        // B. MOONEY IMAGE & RT COLLECTION (20 seconds max)
+        // A. Fixation
+        { type: jsPsychHtmlKeyboardResponse, stimulus: '<div style="font-size:60px; color: white;">+</div>', choices: "NO_KEYS", trial_duration: 500 },
+        // B. Image
         {
             type: jsPsychImageKeyboardResponse,
             stimulus: jsPsych.timelineVariable('stimulus'),
-            choices: ['Enter'], 
-            render_on_canvas: false, 
-            trial_duration: 20000, 
-            
-            data: { 
-                task_part: 'Image_Recognition', 
-                stimulus_filename: jsPsych.timelineVariable('stimulus') 
-            },
+            choices: ['Enter'], render_on_canvas: false, trial_duration: 20000, 
+            data: { task_part: 'Image_Recognition', stimulus_filename: jsPsych.timelineVariable('stimulus') },
             on_finish: function(data) {
                 data.recognized = data.response !== null;
                 jsPsych.data.get().addToLast({ image_recognized: data.recognized });
             }
         },
-        
-        // C. CATEGORY RESPONSE (5 seconds max) 
+        // C. Category
         {
             type: jsPsychHtmlKeyboardResponse,
             stimulus: function(){
                 try {
                     const choices = getStimulusData('category_choices');
-                    const formatted_choices = choices.replace(/\n/g, '<br>');
-                    
-                    return `
-                        <p style="font-size: 24px;">Choose the correct category (Press 1-5):</p>
-                        <div class="stimulus-text-container">${formatted_choices}</div>
-                    `;
-                } catch (e) {
-                    return '<p style="color: red;">Error: Failed to retrieve category choices.</p>';
-                }
+                    return `<p style="font-size: 24px;">Choose the correct category (Press 1-5):</p><div class="stimulus-text-container">${choices.replace(/\n/g, '<br>')}</div>`;
+                } catch (e) { return '<p style="color: red;">Error: Failed to retrieve category choices.</p>'; }
             },
-            
-            choices: ['1', '2', '3', '4', '5'],
-            trial_duration: 5000, 
+            choices: ['1', '2', '3', '4', '5'], trial_duration: 5000, 
             data: { task_part: 'Category_Choice', correct_response: jsPsych.timelineVariable('correct_category_key') },
             on_finish: function(data) {
-                data.answered_A = data.response !== null;
                 data.correct_A = jsPsych.pluginAPI.compareKeys(data.response, data.correct_response);
                 jsPsych.data.get().addToLast({ category_correct: data.correct_A });
             }
         },
-        
-        // D. OBJECT RESPONSE (5 seconds max) 
+        // D. Object
         {
             type: jsPsychHtmlKeyboardResponse,
             stimulus: function(){
                  try {
                     const choices = getStimulusData('object_choices');
-                    const formatted_choices = choices.replace(/\n/g, '<br>');
-                    
-                    return `
-                        <p style="font-size: 24px;">Choose the exact object (Press 1-5):</p>
-                        <div class="stimulus-text-container">${formatted_choices}</div>
-                    `;
-                } catch (e) {
-                    return '<p style="color: red;">Error: Failed to retrieve object choices.</p>';
-                }
+                    return `<p style="font-size: 24px;">Choose the exact object (Press 1-5):</p><div class="stimulus-text-container">${choices.replace(/\n/g, '<br>')}</div>`;
+                } catch (e) { return '<p style="color: red;">Error: Failed to retrieve object choices.</p>'; }
             },
-            choices: ['1', '2', '3', '4', '5'],
-            trial_duration: 5000, 
+            choices: ['1', '2', '3', '4', '5'], trial_duration: 5000, 
             data: { task_part: 'Object_Choice', correct_response: jsPsych.timelineVariable('correct_object_key') },
-            
             on_finish: function(data) {
-                data.answered_B = data.response !== null;
                 data.correct_B = jsPsych.pluginAPI.compareKeys(data.response, data.correct_response);
-                
-                // Only increment current_score for Object Choice (Question D) correctness
                 if (data.correct_B) { current_score++; }
             }
         }
@@ -175,48 +123,51 @@ const mooney_trial_template = {
 };
 
 // -----------------------------------------------------------
-// 4. ASSEMBLE AND RUN TIMELINE
+// 4. THE ROBUST REDIRECT TRIAL (New Logic)
+// -----------------------------------------------------------
+
+const final_redirect_trial = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `
+        <div style="font-size: 30px; color: white;">
+            <p>Task Complete.</p>
+            <p>Redirecting you back to Qualtrics...</p>
+            <p style="font-size: 18px;">(Please do not close this window)</p>
+        </div>
+    `,
+    choices: "NO_KEYS",
+    trial_duration: 1500, // Display message briefly before executing redirect
+    on_finish: function() {
+        // 1. Calculate Score
+        const total_score = jsPsych.data.get().filter({task_part: 'Object_Choice', correct_B: true}).count();
+        const total_trials_logged = jsPsych.data.get().filter({task_part: 'Image_Recognition'}).count();
+        // Use a default divisor of 1 to prevent dividing by zero if somehow data is corrupt
+        const final_percent = (total_score / (total_trials_logged || 1)).toFixed(3); 
+        
+        // 2. Get ID
+        let response_id = getParameterByName('participant'); 
+        if (!response_id) { response_id = 'NO_ID'; }
+        
+        // 3. Construct and Execute Redirect
+        const base_url = 'https://duke.qualtrics.com/jfe/form/SV_3CRfinpvLk65sBU'; 
+        // Use encodeURIComponent to ensure the ID is safe for the URL
+        const target = `${base_url}?MoodleScore=${final_percent}&subjID=${encodeURIComponent(response_id)}`;
+        
+        console.log("Redirecting to:", target);
+        // Use window.location.replace() for a clean exit (no back button entry)
+        window.location.replace(target);
+    }
+};
+
+// -----------------------------------------------------------
+// 5. ASSEMBLE AND RUN
 // -----------------------------------------------------------
 
 let main_timeline = [];
 main_timeline.push(preload); 
 main_timeline = main_timeline.concat(instruction_timeline);
 main_timeline.push(mooney_trial_template);
+main_timeline.push(final_redirect_trial); // CRITICAL: The redirect trial is now part of the timeline
 
-jsPsych.run(main_timeline, {
-    // This is the function that executes when the experiment is complete
-    on_finish: function() {
-        // --- 1. Reliable Data Calculation ---
-        // Score: count of trials where the object choice (correct_B) was true
-        const total_score = jsPsych.data.get().filter({task_part: 'Object_Choice', correct_B: true}).count();
-        // Total Trials: count of image recognition trials (should be 8)
-        const total_trials_logged = jsPsych.data.get().filter({task_part: 'Image_Recognition'}).count();
-        
-        // Calculate final percent (safe from global variable errors)
-        const final_percent = (total_score / total_trials_logged).toFixed(3); 
-        
-        // --- 2. ID Handling and Encoding ---
-        let response_id = getParameterByName('participant'); 
-        if (!response_id) { 
-            console.error("Participant ID not found in URL. Using 'NO_ID'.");
-            response_id = 'NO_ID'; 
-        }
-        // Encode the ID to handle special characters (e.g., from Qualtrics)
-        response_id = encodeURIComponent(response_id);
-        
-        // --- 3. URL Construction ---
-        const base_return_url = 'https://duke.qualtrics.com/jfe/form/SV_3CRfinpvLk65sBU'; 
-
-        // Final URL with embedded data fields
-        const redirection_target = base_return_url + 
-                                   '?MoodleScore=' + final_percent + 
-                                   '&subjID=' + response_id; 
-        
-        console.log("Final Redirect URL:", redirection_target); 
-
-        // --- 4. EXECUTE REDIRECT ---
-        // window.location.replace is used for a clean navigation that avoids adding 
-        // the current GitHub page to the browser's history.
-        window.location.replace(redirection_target); 
-    }
-});
+// The global on_finish is removed. The redirect is handled inside the final trial.
+jsPsych.run(main_timeline);
