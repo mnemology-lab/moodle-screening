@@ -2,7 +2,6 @@
 // 1. INITIALIZATION AND GLOBAL VARIABLES
 // -----------------------------------------------------------
 const jsPsych = initJsPsych({ display_element: 'jspsych-display' });
-// FIX: Removed IMAGE_BASE_URL here and moved it to the stimulus definition
 let current_score = 0; 
 const total_trials = 8;
 const cutoff_score = 0.4; 
@@ -19,7 +18,6 @@ function getParameterByName(name, url = window.location.href) {
 // -----------------------------------------------------------
 // 2. STIMULI DEFINITION (The source of truth for data)
 // -----------------------------------------------------------
-// FIX: Defined IMAGE_BASE_URL right before its use
 const IMAGE_BASE_URL = 'images/'; 
 
 const all_stimuli = [
@@ -39,12 +37,13 @@ const all_stimuli = [
 // -----------------------------------------------------------
 
 let instruction_timeline = [
-    // ... (Instructions remain the same)
+    { type: jsPsychHtmlKeyboardResponse, stimulus: `<h2>Object Recognition Task</h2><p><strong>Welcome.</strong></p><p>You will see black-and-white Mooney images. Try to identify the object.</p><p style="margin-top: 30px;">Press the <strong>SPACEBAR</strong> to continue.</p>`, choices: [' '] },
+    { type: jsPsychHtmlKeyboardResponse, stimulus: `<h2>Instructions</h2><p>Press <strong>Enter</strong> the moment you think you see the object (max 20s).</p><p>You will then have 5s for the category choice and 5s for the object choice.</p><p><strong>Use the number keys (1, 2, 3, 4, 5).</strong></p><p style="margin-top: 30px;">Press the <strong>SPACEBAR</strong> to continue.</p>`, choices: [' '] },
+    { type: jsPsychHtmlKeyboardResponse, stimulus: `<h2>Screening Trials</h2><p>We will start with 8 screening trials. You need ${cutoff_score * 100}% correct to proceed.</p><p style="margin-top: 30px;">Click <strong>Enter</strong> to start the task.</p>`, choices: ['Enter'] }
 ];
 
 let preload = {
     type: jsPsychPreload,
-    // FIX: Preload uses the correct image path now
     images: all_stimuli.map(s => IMAGE_BASE_URL + s.stimulus), 
     message: '<p style="font-size: 24px;">Please wait while the experiment loads...</p>',
     show_progress_bar: true, auto_translate: false, continue_after_error: false
@@ -52,19 +51,14 @@ let preload = {
 
 // **Helper function to retrieve data directly from the original stimulus array**
 function getStimulusData(key) {
-    // We can no longer rely on get-current-timeline-node, so we use the count method
     const finished_trials = jsPsych.data.get().count();
-    
-    // We have 3 introductory trials (preload, 2 instructions) before the first test trial (index 0)
-    // The current trial index within the mooney block is the total number of finished trials minus 3.
     const mooney_index = finished_trials - 3; 
 
-    // Safety check
     if (mooney_index < 0 || mooney_index >= all_stimuli.length) {
+        console.error(`Index out of bounds: ${mooney_index}`);
         return 'Error: Index out of bounds.';
     }
     
-    // This reliably pulls the data from the source array based on completed trials
     return all_stimuli[mooney_index][key];
 }
 
@@ -82,14 +76,19 @@ const mooney_trial_template = {
         // B. MOONEY IMAGE & RT COLLECTION (20 seconds max)
         {
             type: jsPsychImageKeyboardResponse,
-            // FIX: Stimulus now concatenates the base URL with the filename
+            // *** FINAL FIX: Reverting to the custom function to explicitly build the full path ***
             stimulus: function() {
                  return IMAGE_BASE_URL + jsPsych.timelineVariable('stimulus');
             },
+            
             choices: ['Enter'], 
             render_on_canvas: false, 
             trial_duration: 20000, 
-            data: { task_part: 'Image_Recognition', stimulus_filename: jsPsych.timelineVariable('stimulus') },
+            
+            data: { 
+                task_part: 'Image_Recognition', 
+                stimulus_filename: jsPsych.timelineVariable('stimulus') 
+            },
             on_finish: function(data) {
                 data.recognized = data.response !== null;
                 jsPsych.data.get().addToLast({ image_recognized: data.recognized });
