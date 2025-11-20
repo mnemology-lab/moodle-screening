@@ -181,35 +181,38 @@ main_timeline.push(mooney_trial_template);
 
 jsPsych.run(main_timeline, {
     on_finish: function() {
-        // 1. Calculate Score and Total Trials reliably from LOGGED DATA
+        // --- 1. Data Calculation ---
         const total_score = jsPsych.data.get().filter({task_part: 'Object_Choice', correct_B: true}).count();
         const total_trials_logged = jsPsych.data.get().filter({task_part: 'Image_Recognition'}).count();
-        
-        // Calculate final percent (safe from global variable errors)
         const final_percent = (total_score / total_trials_logged).toFixed(3); 
         
-        // 2. Safely get and encode the participant ID
+        // --- 2. ID Handling ---
         let response_id = getParameterByName('participant'); 
-        if (!response_id) {
-            console.error("Participant ID not found in URL. Using 'NO_ID'.");
-            response_id = 'NO_ID';
-        }
-        // Encode the ID to handle special characters (e.g., from Qualtrics)
+        if (!response_id) { response_id = 'NO_ID'; }
         response_id = encodeURIComponent(response_id);
         
-        // 3. Construct the Final Qualtrics Redirect URL
+        // --- 3. URL Construction ---
         const base_return_url = 'https://duke.qualtrics.com/jfe/form/SV_3CRfinpvLk65sBU'; 
-
-        // Parameter names match Qualtrics Embedded Data fields: MoodleScore and subjID
         const redirection_target = base_return_url + 
                                    '?MoodleScore=' + final_percent + 
                                    '&subjID=' + response_id; 
         
-        // Log the redirection URL (for browser console debugging)
-        console.log("Final Redirect URL:", redirection_target);
-        
-        // 4. Execute the Redirection
-        // Using window.location.href is more robust than location.replace in some browser setups
-        window.location.href = redirection_target; 
+        // --- 4. EXECUTE REDIRECT (HTML Meta Refresh) ---
+        // This is a browser command that overrides JS failure and is highly reliable.
+        document.write(`
+            <html>
+                <head>
+                    <title>Redirecting...</title>
+                    <meta http-equiv="refresh" content="0; url=${redirection_target}" />
+                </head>
+                <body style="background-color: black; color: white; text-align: center; padding-top: 100px;">
+                    <h2>Redirecting to Qualtrics...</h2>
+                    <p>If you are not redirected in 5 seconds, please click this link:</p>
+                    <p><a href="${redirection_target}" style="color: #64B5F6;">Click to Continue Survey</a></p>
+                </body>
+            </html>
+        `);
+        // We halt all other JavaScript execution after this
+        jsPsych.endExperiment(); 
     }
 });
