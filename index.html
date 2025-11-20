@@ -1,96 +1,43 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mooney Screening Task</title>
-
-    <!-- CRITICAL FIX: The base tag is essential for stabilizing redirects on GitHub Pages -->
-    <!-- It defines the root URL for all relative links and helps the browser's navigation history. -->
-    <base href="https://catherinesaunders.github.io/moodle-screening/"> 
     
-    <style>
-        /* 1. ESSENTIAL JSPSYCH CSS TO HIDE CONTENT BEFORE START */
-        #jspsych-display {
-            opacity: 0;
-            transition: opacity 500ms ease-in-out;
-        }
-        /* jsPsych adds this class when the experiment starts */
-        #jspsych-display.jspsych-display-element {
-            opacity: 1;
-        }
+    <!-- 1. Load Core jsPsych Library -->
+    <script src="https://unpkg.com/jspsych@7.3.3"></script>
+    <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" type="text/css" />
+    
+    <!-- 2. Load Necessary jsPsych Plugins to fix "Plugin not recognized" error -->
+    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.0"></script>
+    <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.0"></script>
 
-        /* 2. CUSTOM STYLES */
+    <style>
+        /* Simple styling for the experiment display */
         body {
-            /* Black background, white text */
-            background-color: black;
-            color: white;
-            font-family: "Open Sans", "Arial", sans-serif; 
-            text-align: center;
-            /* Font size increase */
-            font-size: 18px; 
-            /* Line spacing increase */
-            line-height: 1.6; 
-        }
-        
-        #jspsych-display {
-            margin: 0 auto;
-            width: 100%;
-            height: 100%;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
+            height: 100vh;
+            margin: 0;
+            background-color: #f0f0f0;
+            font-family: sans-serif;
         }
-
-        /* Image Sizing for Consistency and Quality */
-        #jspsych-display img {
-            max-width: 600px; /* Max image width */
-            max-height: 600px; /* Max image height */
-            width: auto;
-            height: auto;
-            object-fit: contain;
-            margin: 20px 0;
+        #jspsych-display {
+            max-width: 800px;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            text-align: center;
         }
-
-        /* Text Styling */
-        h2 {
-            color: white;
-            font-size: 28px;
-            margin-bottom: 20px;
-        }
-        
-        .stimulus-text-container {
-            color: white;
-            text-align: left;
-            /* Font size increase for choice options */
-            font-size: 22px; 
-            /* Line spacing increase for choice options */
-            line-height: 1.8; 
-            white-space: pre-wrap; 
-            margin: 20px auto;
-            max-width: 600px; 
-        }
-        
-        #jspsych-content p {
-            /* Font size increase for instruction paragraphs */
-            font-size: 20px;
-            line-height: 1.7;
-        }
-
     </style>
-    
-    <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <body>
-    
     <div id="jspsych-display"></div>
-
-    <!-- Script imports using absolute paths based on the GitHub repository structure -->
-    <script src="/moodle-screening/jspsych/jspsych.js"></script>
-    <script src="/moodle-screening/jspsych/plugin-preload.js"></script>
-    <script src="/moodle-screening/jspsych/plugin-html-keyboard-response.js"></script>
-    <script src="/moodle-screening/jspsych/plugin-image-keyboard-response.js"></script>
-
-    <script src="/moodle-screening/experiment_final.js"></script>
     
+    <!-- 3. Load the Experiment Logic -->
+    <script src="experiment_final.js"></script>
 </body>
 </html>
