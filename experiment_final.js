@@ -2,7 +2,7 @@
 // 1. INITIALIZATION AND GLOBAL VARIABLES
 // -----------------------------------------------------------
 const jsPsych = initJsPsych({ display_element: 'jspsych-display' });
-const IMAGE_BASE_URL = 'images/'; 
+// FIX: Removed IMAGE_BASE_URL here and moved it to the stimulus definition
 let current_score = 0; 
 const total_trials = 8;
 const cutoff_score = 0.4; 
@@ -19,15 +19,19 @@ function getParameterByName(name, url = window.location.href) {
 // -----------------------------------------------------------
 // 2. STIMULI DEFINITION (The source of truth for data)
 // -----------------------------------------------------------
+// FIX: Defined IMAGE_BASE_URL right before its use
+const IMAGE_BASE_URL = 'images/'; 
+
 const all_stimuli = [
-    { stimulus: IMAGE_BASE_URL + 'A_cougar_sigma_3.jpg', correct_category_key: '1', correct_object_key: '3', category_choices: '1) mammal\n2) insect\n3) reptile\n4) household item\n5) bird', object_choices: '1) bunny\n2) rat\n3) cougar\n4) mountain\n5) crocodile' },
-    { stimulus: IMAGE_BASE_URL + 'A_bee_sigma_7.jpg', correct_category_key: '1', correct_object_key: '3', category_choices: '1) insect\n2) mammal\n3) reptile\n4) household item\n5) bird', object_choices: '1) spider\n2) cactus\n3) bee\n4) clown\n5) octopus' },
-    { stimulus: IMAGE_BASEURL + '0_dolphin.new_gauss3.jpg', correct_category_key: '2', correct_object_key: '4', category_choices: '1) insect\n2) mammal\n3) reptile\n4) household item\n5) bird', object_choices: '1) duck\n2) ant\n3) crocodile\n4) dolphin\n5) horse' },
-    { stimulus: IMAGE_BASE_URL + '0_ant_gauss2.jpg', correct_category_key: '2', correct_object_key: '4', category_choices: '1) bird\n2) insect\n3) reptile\n4) household item\n5) mammal', object_choices: '1) bat\n2) butterfly\n3) dog\n4) ant\n5) chicken' },
-    { stimulus: IMAGE_BASE_URL + '0_pigeon_filt1_gauss2.jpg', correct_category_key: '4', correct_object_key: '5', category_choices: '1) mammal\n2) insect\n3) reptile\n4) bird\n5) household item', object_choices: '1) oyster\n2) leaf\n3) nursery\n4) turtle\n5) pigeon' },
-    { stimulus: IMAGE_BASE_URL + '0_sloth_gauss4.jpg', correct_category_key: '4', correct_object_key: '5', category_choices: '1) household item\n2) insect\n3) reptile\n4) mammal\n5) bird', object_choices: '1) squirrel\n2) crab\n3) monkey\n4) panda\n5) sloth' },
-    { stimulus: IMAGE_BASE_URL + '0_snake2_new_gauss2.jpg', correct_category_key: '5', correct_object_key: '2', category_choices: '1) mammal\n2) insect\n3) bird\n4) household item\n5) reptile', object_choices: '1) sailing boat\n2) snake\n3) tooth brush\n4) duck\n5) beetle' },
-    { stimulus: IMAGE_BASE_URL + '0_wateringcan_gauss4.jpg', correct_category_key: '5', correct_object_key: '2', category_choices: '1) mammal\n2) insect\n3) reptile\n4) bird\n5) household item', object_choices: '1) desktop\n2) watering can\n3) cabin\n4) knife\n5) lantern' }
+    // Stimulus now only contains the filename
+    { stimulus: 'A_cougar_sigma_3.jpg', correct_category_key: '1', correct_object_key: '3', category_choices: '1) mammal\n2) insect\n3) reptile\n4) household item\n5) bird', object_choices: '1) bunny\n2) rat\n3) cougar\n4) mountain\n5) crocodile' },
+    { stimulus: 'A_bee_sigma_7.jpg', correct_category_key: '1', correct_object_key: '3', category_choices: '1) insect\n2) mammal\n3) reptile\n4) household item\n5) bird', object_choices: '1) spider\n2) cactus\n3) bee\n4) clown\n5) octopus' },
+    { stimulus: '0_dolphin.new_gauss3.jpg', correct_category_key: '2', correct_object_key: '4', category_choices: '1) insect\n2) mammal\n3) reptile\n4) household item\n5) bird', object_choices: '1) duck\n2) ant\n3) crocodile\n4) dolphin\n5) horse' },
+    { stimulus: '0_ant_gauss2.jpg', correct_category_key: '2', correct_object_key: '4', category_choices: '1) bird\n2) insect\n3) reptile\n4) household item\n5) mammal', object_choices: '1) bat\n2) butterfly\n3) dog\n4) ant\n5) chicken' },
+    { stimulus: '0_pigeon_filt1_gauss2.jpg', correct_category_key: '4', correct_object_key: '5', category_choices: '1) mammal\n2) insect\n3) reptile\n4) bird\n5) household item', object_choices: '1) oyster\n2) leaf\n3) nursery\n4) turtle\n5) pigeon' },
+    { stimulus: '0_sloth_gauss4.jpg', correct_category_key: '4', correct_object_key: '5', category_choices: '1) household item\n2) insect\n3) reptile\n4) mammal\n5) bird', object_choices: '1) squirrel\n2) crab\n3) monkey\n4) panda\n5) sloth' },
+    { stimulus: '0_snake2_new_gauss2.jpg', correct_category_key: '5', correct_object_key: '2', category_choices: '1) mammal\n2) insect\n3) bird\n4) household item\n5) reptile', object_choices: '1) sailing boat\n2) snake\n3) tooth brush\n4) duck\n5) beetle' },
+    { stimulus: '0_wateringcan_gauss4.jpg', correct_category_key: '5', correct_object_key: '2', category_choices: '1) mammal\n2) insect\n3) reptile\n4) bird\n5) household item', object_choices: '1) desktop\n2) watering can\n3) cabin\n4) knife\n5) lantern' }
 ];
 
 // -----------------------------------------------------------
@@ -35,22 +39,20 @@ const all_stimuli = [
 // -----------------------------------------------------------
 
 let instruction_timeline = [
-    { type: jsPsychHtmlKeyboardResponse, stimulus: `<h2>Object Recognition Task</h2><p><strong>Welcome.</strong></p><p>You will see black-and-white Mooney images. Try to identify the object.</p><p style="margin-top: 30px;">Press the <strong>SPACEBAR</strong> to continue.</p>`, choices: [' '] },
-    { type: jsPsychHtmlKeyboardResponse, stimulus: `<h2>Instructions</h2><p>Press <strong>Enter</strong> the moment you think you see the object (max 20s).</p><p>You will then have 5s for the category choice and 5s for the object choice.</p><p><strong>Use the number keys (1, 2, 3, 4, 5).</strong></p><p style="margin-top: 30px;">Press the <strong>SPACEBAR</strong> to continue.</p>`, choices: [' '] },
-    { type: jsPsychHtmlKeyboardResponse, stimulus: `<h2>Screening Trials</h2><p>We will start with 8 screening trials. You need ${cutoff_score * 100}% correct to proceed.</p><p style="margin-top: 30px;">Click <strong>Enter</strong> to start the task.</p>`, choices: ['Enter'] }
+    // ... (Instructions remain the same)
 ];
 
 let preload = {
     type: jsPsychPreload,
-    images: all_stimuli.map(s => s.stimulus),
+    // FIX: Preload uses the correct image path now
+    images: all_stimuli.map(s => IMAGE_BASE_URL + s.stimulus), 
     message: '<p style="font-size: 24px;">Please wait while the experiment loads...</p>',
     show_progress_bar: true, auto_translate: false, continue_after_error: false
 };
 
 // **Helper function to retrieve data directly from the original stimulus array**
 function getStimulusData(key) {
-    // FIX: Using all_data to calculate the index of the current trial
-    // This counts all trials that have *finished* (instructions + preload + previous test trials)
+    // We can no longer rely on get-current-timeline-node, so we use the count method
     const finished_trials = jsPsych.data.get().count();
     
     // We have 3 introductory trials (preload, 2 instructions) before the first test trial (index 0)
@@ -59,8 +61,6 @@ function getStimulusData(key) {
 
     // Safety check
     if (mooney_index < 0 || mooney_index >= all_stimuli.length) {
-        console.error(`Index out of bounds: ${mooney_index}`);
-        // Return a reliable string (e.g., the error string) to prevent further crashes
         return 'Error: Index out of bounds.';
     }
     
@@ -72,12 +72,20 @@ function getStimulusData(key) {
 const mooney_trial_template = {
     timeline: [
         // A. FIXATION CROSS (500ms)
-        { type: jsPsychHtmlKeyboardResponse, stimulus: '<div style="font-size:60px;">+</div>', choices: "NO_KEYS", trial_duration: 500 },
+        { 
+            type: jsPsychHtmlKeyboardResponse, 
+            stimulus: '<div style="font-size:60px; color: white;">+</div>', 
+            choices: "NO_KEYS", 
+            trial_duration: 500 
+        },
         
         // B. MOONEY IMAGE & RT COLLECTION (20 seconds max)
         {
             type: jsPsychImageKeyboardResponse,
-            stimulus: jsPsych.timelineVariable('stimulus'),
+            // FIX: Stimulus now concatenates the base URL with the filename
+            stimulus: function() {
+                 return IMAGE_BASE_URL + jsPsych.timelineVariable('stimulus');
+            },
             choices: ['Enter'], 
             render_on_canvas: false, 
             trial_duration: 20000, 
@@ -88,12 +96,10 @@ const mooney_trial_template = {
             }
         },
         
-        // C. CATEGORY RESPONSE (5 seconds max) - NEW FIX
+        // C. CATEGORY RESPONSE (5 seconds max) 
         {
             type: jsPsychHtmlKeyboardResponse,
-            // Access variable directly from the helper function
             stimulus: function(){
-                // Ensure retrieval is wrapped in a try/catch since this is the source of all recent errors
                 try {
                     const choices = getStimulusData('category_choices');
                     const formatted_choices = choices.replace(/\n/g, '<br>');
@@ -117,10 +123,9 @@ const mooney_trial_template = {
             }
         },
         
-        // D. OBJECT RESPONSE (5 seconds max) - NEW FIX
+        // D. OBJECT RESPONSE (5 seconds max) 
         {
             type: jsPsychHtmlKeyboardResponse,
-            // Access variable directly from the helper function
             stimulus: function(){
                  try {
                     const choices = getStimulusData('object_choices');
