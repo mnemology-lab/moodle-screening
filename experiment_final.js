@@ -69,9 +69,10 @@ const mooney_trial_template = {
         // C. CATEGORY RESPONSE (5 seconds max) - FIX APPLIED
         {
             type: jsPsychHtmlKeyboardResponse,
-            stimulus: function(trial){
-                // *** FINAL FIX: Accessing parameters directly from the trial object/settings ***
-                const category_options = trial.category_choices;
+            stimulus: function(){
+                // *** FINAL FIX: Get variable directly from the current trial settings ***
+                const current_trial = jsPsych.getCurrentTrial();
+                const category_options = current_trial.category_choices;
                 return '<p style="font-size: 24px;">Choose the correct category (Press 1-5):</p>' + '<div class="stimulus-text-container">' + category_options.replace(/\n/g, '<br>') + '</div>';
             },
             
@@ -88,9 +89,10 @@ const mooney_trial_template = {
         // D. OBJECT RESPONSE (5 seconds max) - FIX APPLIED
         {
             type: jsPsychHtmlKeyboardResponse,
-            stimulus: function(trial){
-                // *** FINAL FIX: Accessing parameters directly from the trial object/settings ***
-                const object_options = trial.object_choices;
+            stimulus: function(){
+                // *** FINAL FIX: Get variable directly from the current trial settings ***
+                const current_trial = jsPsych.getCurrentTrial();
+                const object_options = current_trial.object_choices;
                 return '<p style="font-size: 24px;">Choose the exact object (Press 1-5):</p>' + '<div class="stimulus-text-container">' + object_options.replace(/\n/g, '<br>') + '</div>';
             },
             choices: ['1', '2', '3', '4', '5'],
