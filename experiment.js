@@ -121,7 +121,7 @@ main_timeline.push(preload);
 main_timeline = main_timeline.concat(instruction_timeline);
 main_timeline.push(mooney_trial_template);
 
-// *** STANDARD JSPSYCH STARTUP (NO JATOS WRAPPER) ***
+// *** STANDARD JSPSYCH STARTUP: This is the correct way to start the experiment. ***
 jsPsych.run(main_timeline);
 
 // -----------------------------------------------------------
