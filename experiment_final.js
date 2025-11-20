@@ -2,8 +2,8 @@
 // 1. INITIALIZATION AND GLOBAL VARIABLES
 // -----------------------------------------------------------
 const jsPsych = initJsPsych({ display_element: 'jspsych-display' }); 
-let current_score = 0; 
-const total_trials = 8;
+let current_score = 0; // Keeping this for backwards compatibility, but not strictly needed for final score calc
+const total_trials = 8; // Keeping for reference, but final calc uses logged data
 const cutoff_score = 0.4; 
 
 function getParameterByName(name, url = window.location.href) {
@@ -161,6 +161,7 @@ const mooney_trial_template = {
                 data.answered_B = data.response !== null;
                 data.correct_B = jsPsych.pluginAPI.compareKeys(data.response, data.correct_response);
                 
+                // Only increment current_score for Object Choice (Question D) correctness
                 if (data.correct_B) { current_score++; }
             }
         }
@@ -180,24 +181,35 @@ main_timeline.push(mooney_trial_template);
 
 jsPsych.run(main_timeline, {
     on_finish: function() {
-        const final_percent = (current_score / total_trials).toFixed(3); 
-        const response_id = getParameterByName('participant'); 
+        // 1. Calculate Score and Total Trials reliably from LOGGED DATA
+        const total_score = jsPsych.data.get().filter({task_part: 'Object_Choice', correct_B: true}).count();
+        const total_trials_logged = jsPsych.data.get().filter({task_part: 'Image_Recognition'}).count();
         
-        // VERIFIED Anonymous Survey Link
+        // Calculate final percent (safe from global variable errors)
+        const final_percent = (total_score / total_trials_logged).toFixed(3); 
+        
+        // 2. Safely get and encode the participant ID
+        let response_id = getParameterByName('participant'); 
+        if (!response_id) {
+            console.error("Participant ID not found in URL. Using 'NO_ID'.");
+            response_id = 'NO_ID';
+        }
+        // Encode the ID to handle special characters (e.g., from Qualtrics)
+        response_id = encodeURIComponent(response_id);
+        
+        // 3. Construct the Final Qualtrics Redirect URL
         const base_return_url = 'https://duke.qualtrics.com/jfe/form/SV_3CRfinpvLk65sBU'; 
 
-        // CRITICAL: Ensure the base URL and parameters are concatenated correctly
+        // Parameter names match Qualtrics Embedded Data fields: MoodleScore and subjID
         const redirection_target = base_return_url + 
                                    '?MoodleScore=' + final_percent + 
                                    '&subjID=' + response_id; 
         
-        // === DEBUG STEP: This will show you the URL ===
-        alert("Redirecting to: " + redirection_target);
-        // ===============================================
-
-        // Pause for a moment, then redirect
-        setTimeout(function() {
-            window.location.replace(redirection_target);
-        }, 500); // 500ms delay to ensure the alert is seen
+        // Log the redirection URL (for browser console debugging)
+        console.log("Final Redirect URL:", redirection_target);
+        
+        // 4. Execute the Redirection
+        // Using window.location.href is more robust than location.replace in some browser setups
+        window.location.href = redirection_target; 
     }
 });
