@@ -9,10 +9,12 @@
     <script src="https://unpkg.com/jspsych@7.3.3"></script>
     <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" type="text/css" />
     
-    <!-- 2. Load Necessary jsPsych Plugins to fix "Plugin not recognized" error -->
+    <!-- 2. Load ALL Necessary jsPsych Plugins -->
+    <!-- These MUST be loaded before experiment_final.js runs -->
     <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.0"></script>
     <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.0"></script>
-
+    <script src="https://unpkg.com/@jspsych/plugin-image-keyboard-response@1.1.0"></script>
+    
     <style>
         /* Simple styling for the experiment display */
         body {
@@ -32,12 +34,20 @@
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
             text-align: center;
         }
+        .jspsych-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
     </style>
 </head>
 <body>
     <div id="jspsych-display"></div>
     
-    <!-- 3. Load the Experiment Logic -->
+    <!-- 3. Load the Experiment Logic (experiment_final.js) -->
     <script src="experiment_final.js"></script>
 </body>
 </html>
+
+After updating both `index.html` and `experiment_final.js`, your experiment should start successfully.
