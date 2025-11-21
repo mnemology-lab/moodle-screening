@@ -1,51 +1,88 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mooney Screening Task</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     
-    <!-- 1. Load Core jsPsych Library -->
+    <!-- Load jsPsych core and plugins from CDN -->
     <script src="https://unpkg.com/jspsych@7.3.3"></script>
-    <link href="https://unpkg.com/jspsych@7.3.3/css/jspsych.css" rel="stylesheet" type="text/css" />
-    
-    <!-- 2. Load ALL Necessary jsPsych Plugins -->
-    <!-- These MUST be loaded before experiment_final.js runs -->
     <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@1.1.0"></script>
     <script src="https://unpkg.com/@jspsych/plugin-preload@1.1.0"></script>
     <script src="https://unpkg.com/@jspsych/plugin-image-keyboard-response@1.1.0"></script>
     
+    <!-- Core Styling for a dark, full-screen experiment -->
     <style>
-        /* Simple styling for the experiment display */
+        /* Ensures the entire page (body) uses a black background */
         body {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
+            background-color: black;
+            color: white; /* Default text color is white for visibility */
+            font-family: Arial, sans-serif;
             margin: 0;
-            background-color: #f0f0f0;
-            font-family: sans-serif;
-        }
-        #jspsych-display {
-            max-width: 800px;
-            padding: 20px;
-            background: white;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-            text-align: center;
-        }
-        .jspsych-content {
+            padding: 0;
+            overflow: hidden; /* Prevent scrolling */
             display: flex;
-            flex-direction: column;
-            align-items: center;
             justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        /* The main jsPsych display container */
+        #jspsych-display {
+            /* Ensures the display container takes up most of the screen */
+            width: 90vw;
+            max-width: 1000px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        /* Styling for specific elements within the experiment */
+        .jspsych-content-wrapper {
+            background-color: black;
+            border: none;
+            text-align: center;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Styling for the preload message to be visible */
+        .jspsych-content {
+            color: white;
+            font-size: 1.2em;
+        }
+
+        /* Force black background for the stimulus image page if needed */
+        .jspsych-image-keyboard-response-stimulus {
+            background-color: black;
+        }
+        
+        /* Ensures the white text in instruction trials is visible */
+        h2 {
+            color: white;
+            margin-bottom: 20px;
+        }
+        p {
+            color: white;
+            line-height: 1.4;
+        }
+        
+        /* Styling for the pre-formatted choice options */
+        pre {
+            text-align: left;
+            margin: 20px auto;
+            border: 1px solid #444;
+            padding: 15px;
+            background-color: #111;
+            display: inline-block;
+            white-space: pre-wrap; /* Allows wrapping for long lines */
         }
     </style>
 </head>
 <body>
+    <!-- This is the container where jsPsych renders the experiment content -->
     <div id="jspsych-display"></div>
-    
-    <!-- 3. Load the Experiment Logic (experiment_final.js) -->
+
+    <!-- 3. Link to the main script -->
     <script src="experiment_final.js"></script>
 </body>
 </html>
