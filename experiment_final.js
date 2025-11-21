@@ -72,7 +72,9 @@ const mooney_image_template = {
     stimulus_height: 650, 
     stimulus_width: 650,  
     // ------------------------------------------
-    trial_duration: 20000, // Max 20 seconds
+    // --- UPDATED DURATION: 20 SECONDS ---
+    trial_duration: 20000, 
+    // ------------------------------------
     prompt: '<p style="color: white;">Press <strong>Enter</strong> the moment you identify the object.</p>', // Ensure prompt is white
     data: { 
         task_part: 'Image_Recognition',
@@ -150,15 +152,18 @@ const full_mooney_trial = {
 let instruction_timeline = [
     { 
         type: jsPsychHtmlKeyboardResponse, 
-        stimulus: `<h2 style="color: white;">Object Recognition Task</h2><p><strong>Welcome.</strong></p><p>You will see black-and-white Mooney images. Try to identify the object.</p><p style="margin-top: 30px;">Press the <strong>SPACEBAR</strong> to continue.</p>`, choices: [' '] 
+        stimulus: `<h2 style="color: white;">Object Recognition Task</h2><p><strong>Welcome.</strong></p><p>You will see black-and-white Mooney images. Try to identify the object.</p><p style="margin-top: 30px;">Press the <strong>SPACEBAR</strong> to continue.</p>`, 
+        choices: [' '] // This ensures the screen waits for spacebar input
     },
     { 
         type: jsPsychHtmlKeyboardResponse, 
-        stimulus: `<h2 style="color: white;">Instructions</h2><p>Press <strong>Enter</strong> the moment you think you see the object (max 20s).</p><p>You will then have 5s for the category choice and 5s for the object choice.</p><p><strong>Use the number keys (1, 2, 3, 4, 5).</strong></p><p style="margin-top: 30px;">Press the <strong>SPACEBAR</strong> to continue.</p>`, choices: [' '] 
+        stimulus: `<h2 style="color: white;">Instructions</h2><p>Press <strong>Enter</strong> the moment you think you see the object (max 20s).</p><p>You will then have 5s for the category choice and 5s for the object choice.</p><p><strong>Use the number keys (1, 2, 3, 4, 5).</strong></p><p style="margin-top: 30px;">Press the <strong>SPACEBAR</strong> to continue.</p>`, 
+        choices: [' '] // This ensures the screen waits for spacebar input
     },
     { 
         type: jsPsychHtmlKeyboardResponse, 
-        stimulus: `<h2 style="color: white;">Screening Trials</h2><p>We will start with ${total_trials} screening trials. You need ${cutoff_score * 100}% correct (i.e., ${Math.ceil(total_trials * cutoff_score)} out of ${total_trials}) to proceed.</p><p style="margin-top: 30px;">Click <strong>Enter</strong> to start the task.</p>`, choices: ['Enter'] 
+        stimulus: `<h2 style="color: white;">Screening Trials</h2><p>We will start with ${total_trials} screening trials. You need ${cutoff_score * 100}% correct (i.e., ${Math.ceil(total_trials * cutoff_score)} out of ${total_trials}) to proceed.</p><p style="margin-top: 30px;">Click <strong>Enter</strong> to start the task.</p>`, 
+        choices: ['Enter'] // This ensures the screen waits for Enter input
     }
 ];
 
