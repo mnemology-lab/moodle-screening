@@ -72,8 +72,8 @@ const mooney_image_template = {
     stimulus_height: 800, 
     stimulus_width: 800,  
     // ----------------------------------------
-    // --- UPDATED DURATION: 20 SECONDS ---
-    trial_duration: 20000, 
+    // --- UPDATED DURATION: 18 SECONDS ---
+    trial_duration: 18000, 
     // ------------------------------------
     prompt: '<p style="color: white;">Press <strong>Enter</strong> the moment you identify the object.</p>', // Ensure prompt is white
     data: { 
@@ -101,7 +101,7 @@ const category_choice_template = {
         `;
     },
     choices: ['1', '2', '3', '4', '5'],
-    trial_duration: 5000, // 5 seconds to respond
+    trial_duration: 10000, // 10 seconds to respond
     data: { task_part: 'Category_Choice', correct_A: jsPsych.timelineVariable('correct_category_key') },
     on_finish: function(data) {
         data.correct = data.response === data.correct_A;
@@ -126,7 +126,7 @@ const object_choice_template = {
         `;
     },
     choices: ['1', '2', '3', '4', '5'],
-    trial_duration: 5000, // 5 seconds to respond
+    trial_duration: 10000, // 10 seconds to respond
     data: { task_part: 'Object_Choice', correct_B: jsPsych.timelineVariable('correct_object_key') },
     on_finish: function(data) {
         data.correct = data.response === data.correct_B;
