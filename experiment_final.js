@@ -113,32 +113,32 @@ let instruction_timeline = [
 ];
 
 // -----------------------------------------------------------
-// 5. REDIRECT TRIAL (FIXED FOR SINGLE RESPONSE MERGING)
+// 5. REDIRECT TRIAL (TWO-TAB VERSION)
 // -----------------------------------------------------------
 const final_redirect_trial = {
     type: jsPsychHtmlKeyboardResponse,
-    stimulus: '<div style="color: white;"><h3>Task Complete</h3><p>Saving your score and returning to the survey...</p></div>',
+    stimulus: '<div style="color: white;"><h3>Task Complete</h3><p>Syncing with survey and closing this window...</p></div>',
     choices: "NO_KEYS",
     trial_duration: 2000, 
     on_finish: function() {
-        // 1. Calculate the score
         const total_correct = jsPsych.data.get().filter({task_part: 'Object_Choice', correct: true}).count();
         const final_percent = (total_correct / total_trials).toFixed(3); 
-        
-        // 2. Grab the ResponseID passed from Qualtrics
         let response_id = getParameterByName('participant'); 
-        
-        // 3. Your Qualtrics URL
         const base_url = 'https://duke.qualtrics.com/jfe/form/SV_3CRfinpvLk65sBU'; 
         
-        // 4. Construct the return target
-        // Q_R: Targets the existing ID
-        // Q_R_S=1: Resumes the session
-        // Q_R_DEL=0: Merges data into the existing row
+        // Construct the resume URL
         const target = `${base_url}?Q_R=${encodeURIComponent(response_id)}&Q_R_S=1&Q_R_DEL=0&MoodleScore=${final_percent}&participant=${encodeURIComponent(response_id)}&SKIP_FLAG=1`;
         
-        // 5. Redirect the parent window
-        window.location.replace(target);
+        // 1. Check if the original Qualtrics tab is still open
+        if (window.opener && !window.opener.closed) {
+            // Update the original tab to the results page
+            window.opener.location.href = target;
+            // Close this GitHub tab
+            window.close();
+        } else {
+            // Fallback: If they closed the original tab, just redirect this one
+            window.location.replace(target);
+        }
     }
 };
 
