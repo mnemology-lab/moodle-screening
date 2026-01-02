@@ -6,9 +6,7 @@ const jsPsych = initJsPsych({
     default_iti: 1, 
 }); 
 
-// 🎯 Ensure this matches your GitHub "images" folder name
 const GITHUB_PAGES_BASE = 'images/'; 
-
 const total_trials = 8;
 const cutoff_score = 0.4; 
 
@@ -121,34 +119,35 @@ const final_redirect_trial = {
     choices: "NO_KEYS",
     trial_duration: 2000, 
     on_finish: function() {
-    const total_correct = jsPsych.data.get().filter({task_part: 'Object_Choice', correct: true}).count();
-    const final_percent = (total_correct / total_trials).toFixed(3); 
-    let response_id = getParameterByName('participant'); 
-    const base_url = 'https://duke.qualtrics.com/jfe/form/SV_3CRfinpvLk65sBU'; 
-    
-    const target = `${base_url}?Q_R=${encodeURIComponent(response_id)}&Q_R_S=1&Q_R_DEL=0&MoodleScore=${final_percent}&participant=${encodeURIComponent(response_id)}&SKIP_FLAG=1`;
-    
-    // 1. Update the original Qualtrics tab
-    if (window.opener && !window.opener.closed) {
-        window.opener.location.href = target;
+        const total_correct = jsPsych.data.get().filter({task_part: 'Object_Choice', correct: true}).count();
+        const final_percent = (total_correct / total_trials).toFixed(3); 
+        let response_id = getParameterByName('participant'); 
+        const base_url = 'https://duke.qualtrics.com/jfe/form/SV_3CRfinpvLk65sBU'; 
         
-        // 2. Try to close the tab
-        window.close();
+        const target = `${base_url}?Q_R=${encodeURIComponent(response_id)}&Q_R_S=1&Q_R_DEL=0&MoodleScore=${final_percent}&participant=${encodeURIComponent(response_id)}&SKIP_FLAG=1`;
         
-        // 3. FALLBACK: If window.close() is blocked, show a message
-        setTimeout(function() {
-            document.body.innerHTML = `
-                <div style="color: white; text-align: center; margin-top: 100px; font-family: sans-serif;">
-                    <h2>Data Saved!</h2>
-                    <p>The browser blocked this window from closing automatically.</p>
-                    <p style="font-size: 1.2em; font-weight: bold;">Please close this tab and return to the Qualtrics window.</p>
-                </div>`;
-        }, 500);
+        // 1. Update the original Qualtrics tab
+        if (window.opener && !window.opener.closed) {
+            window.opener.location.href = target;
+            
+            // 2. Try to close the tab
+            window.close();
+            
+            // 3. FALLBACK: If window.close() is blocked, show a message
+            setTimeout(function() {
+                document.body.innerHTML = `
+                    <div style="color: white; text-align: center; margin-top: 100px; font-family: sans-serif;">
+                        <h2>Data Saved!</h2>
+                        <p>The browser blocked this window from closing automatically.</p>
+                        <p style="font-size: 1.2em; font-weight: bold;">Please close this tab and return to the Qualtrics window.</p>
+                    </div>`;
+            }, 500);
 
-    } else {
-        // Fallback: If parent is gone, just redirect this window
-        window.location.replace(target);
-    }
+        } else {
+            // Fallback: If parent is gone, just redirect this window
+            window.location.replace(target);
+        }
+    } // Fixed: added missing brace
 };
 
 // -----------------------------------------------------------
