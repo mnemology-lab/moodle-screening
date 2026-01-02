@@ -87,7 +87,7 @@ const full_mooney_trial = {
 };
 
 // -----------------------------------------------------------
-// 4. PRELOAD & YOUR ORIGINAL INSTRUCTIONS
+// 4. PRELOAD & INSTRUCTIONS
 // -----------------------------------------------------------
 let preload = {
     type: jsPsychPreload,
@@ -113,7 +113,7 @@ let instruction_timeline = [
 ];
 
 // -----------------------------------------------------------
-// 5. REDIRECT TRIAL (FIXED TO PREVENT RESTART)
+// 5. REDIRECT TRIAL (FIXED TO MERGE RESPONSES)
 // -----------------------------------------------------------
 const final_redirect_trial = {
     type: jsPsychHtmlKeyboardResponse,
@@ -131,10 +131,17 @@ const final_redirect_trial = {
         // Target your specific Qualtrics Survey
         const base_url = 'https://duke.qualtrics.com/jfe/form/SV_3CRfinpvLk65sBU'; 
         
-        // 🎯 THE CRITICAL URL: Q_R must be first to resume the session instead of starting over
-        const target = `${base_url}?Q_R=${encodeURIComponent(response_id)}&Q_R_DEL=0&MoodleScore=${final_percent}&participant=${encodeURIComponent(response_id)}&SKIP_FLAG=1`;
+        /**
+         * 🎯 THE CRITICAL URL FIX:
+         * Q_R: Matches the original response ID.
+         * Q_R_S=1: Resumes the session where the user left off.
+         * Q_R_DEL=0: Keeps the existing data (demographics) and merges this new data.
+         * SKIP_FLAG=1: Triggers your Survey Flow branch to skip past the demographics.
+         */
+        const target = `${base_url}?Q_R=${encodeURIComponent(response_id)}&Q_R_S=1&Q_R_DEL=0&MoodleScore=${final_percent}&participant=${encodeURIComponent(response_id)}&SKIP_FLAG=1`;
         
-        window.location.replace(target);
+        // Use window.top to break out of any potential containers/iframes
+        window.top.location.href = target;
     }
 };
 
