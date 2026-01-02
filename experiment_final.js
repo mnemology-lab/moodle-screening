@@ -183,10 +183,15 @@ const final_redirect_trial = {
         if (!response_id) { response_id = 'NO_ID'; }
         
         // 3. Construct and Execute Redirect using Retake Link Syntax
+        // Update this URL if your survey ID changes
         const base_url = 'https://duke.qualtrics.com/jfe/form/SV_3CRfinpvLk65sBU'; 
         
-        // Q_R re-opens original session. Q_R_DEL=1 updates it. SKIP_FLAG=1 tells your flow to skip to the end.
-        const target = `${base_url}?Q_R=${encodeURIComponent(response_id)}&Q_R_DEL=1&MoodleScore=${final_percent}&subjID=${encodeURIComponent(response_id)}&SKIP_FLAG=1`;
+        /**
+         * Q_R re-opens the original session matching the response_id.
+         * Q_R_DEL=0 is CRITICAL: it ensures old data (demographics) is KEPT.
+         * SKIP_FLAG=1 is a custom variable you use in Qualtrics Survey Flow to auto-end the survey.
+         */
+        const target = `${base_url}?Q_R=${encodeURIComponent(response_id)}&Q_R_DEL=0&MoodleScore=${final_percent}&subjID=${encodeURIComponent(response_id)}&SKIP_FLAG=1`;
         
         console.log("Redirecting back to original session:", target);
         
