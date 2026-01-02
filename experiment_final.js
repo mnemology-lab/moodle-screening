@@ -6,12 +6,16 @@ const jsPsych = initJsPsych({
     default_iti: 1, 
 }); 
 
-// Ensure this matches your GitHub folder structure
+// 🎯 CRITICAL PATH CHECK: Ensure this matches your GitHub folder name!
 const GITHUB_PAGES_BASE = 'images/'; 
 
 const total_trials = 8;
-const cutoff_score = 0.4; 
+const cutoff_score = 0.4; // 40%
 
+/**
+ * Utility function to parse URL parameters.
+ * Used to retrieve the Qualtrics ResponseID passed as 'participant'
+ */
 function getParameterByName(name, url = window.location.href) {
     name = name.replace(/[\[\]]/g, '\\$&');
     var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
@@ -53,30 +57,67 @@ const mooney_image_template = {
     type: jsPsychImageKeyboardResponse,
     stimulus: jsPsych.timelineVariable('stimulus'),
     choices: ['Enter'],
+    render_on_canvas: false,
     stimulus_height: 800, 
     stimulus_width: 800,  
     trial_duration: 18000, 
     prompt: '<p style="color: white;">Press <strong>Enter</strong> the moment you identify the object.</p>',
-    data: { task_part: 'Image_Recognition' },
-    on_finish: function(data) { data.object_identified = (data.response !== null); }
+    data: { 
+        task_part: 'Image_Recognition',
+        correct_category_key: jsPsych.timelineVariable('correct_category_key'),
+        correct_object_key: jsPsych.timelineVariable('correct_object_key')
+    },
+    on_finish: function(data) {
+        data.object_identified = (data.response !== null);
+    }
 };
 
 const category_choice_template = {
     type: jsPsychHtmlKeyboardResponse,
-    stimulus: () => `<div style="color: white; text-align: left;"><h2>Category</h2><pre>${jsPsych.timelineVariable('category_choices')}</pre></div>`,
+    stimulus: function(){
+        return `
+            <div style="text-align: left; color: white;">
+                <h2>Category Choice</h2>
+                <p>What category is the object from?</p>
+                <pre>${jsPsych.timelineVariable('category_choices')}</pre>
+                <p>Press the corresponding number key (1-5).</p>
+            </div>
+        `;
+    },
     choices: ['1', '2', '3', '4', '5'],
+    trial_duration: 10000,
     data: { task_part: 'Category_Choice', correct_A: jsPsych.timelineVariable('correct_category_key') },
-    on_finish: function(data) { data.correct = data.response === data.correct_A; },
-    conditional_function: () => jsPsych.data.get().last(1).values[0].object_identified
+    on_finish: function(data) {
+        data.correct = data.response === data.correct_A;
+    },
+    conditional_function: function() {
+        const prev_data = jsPsych.data.get().last(1).values[0];
+        return prev_data.object_identified;
+    }
 };
 
 const object_choice_template = {
     type: jsPsychHtmlKeyboardResponse,
-    stimulus: () => `<div style="color: white; text-align: left;"><h2>Object</h2><pre>${jsPsych.timelineVariable('object_choices')}</pre></div>`,
+    stimulus: function(){
+        return `
+            <div style="text-align: left; color: white;">
+                <h2>Object Choice</h2>
+                <p>Which object did you see?</p>
+                <pre>${jsPsych.timelineVariable('object_choices')}</pre>
+                <p>Press the corresponding number key (1-5).</p>
+            </div>
+        `;
+    },
     choices: ['1', '2', '3', '4', '5'],
+    trial_duration: 10000,
     data: { task_part: 'Object_Choice', correct_B: jsPsych.timelineVariable('correct_object_key') },
-    on_finish: function(data) { data.correct = data.response === data.correct_B; },
-    conditional_function: () => jsPsych.data.get().filter({task_part: 'Image_Recognition'}).last(1).values[0].object_identified
+    on_finish: function(data) {
+        data.correct = data.response === data.correct_B;
+    },
+    conditional_function: function() {
+        const image_trial_data = jsPsych.data.get().filter({task_part: 'Image_Recognition'}).last(1).values[0];
+        return image_trial_data.object_identified;
+    }
 };
 
 const full_mooney_trial = {
@@ -86,50 +127,84 @@ const full_mooney_trial = {
 };
 
 // -----------------------------------------------------------
-// 4. PRELOAD & INSTRUCTIONS (RESTORED)
+// 4. INSTRUCTIONS & PRELOAD (YOUR ORIGINAL EXACT TEXT)
 // -----------------------------------------------------------
+
+let instruction_timeline = [
+    { 
+        type: jsPsychHtmlKeyboardResponse, 
+        stimulus: `<h2 style="color: white;">Object Recognition Task</h2><p><strong>Welcome.</strong></p><p>You will see black-and-white Mooney images. Try to identify the object.</p><p style="margin-top: 30px;">Press the <strong>SPACEBAR</strong> to continue.</p>`, 
+        choices: [' ']
+    },
+    { 
+        type: jsPsychHtmlKeyboardResponse, 
+        stimulus: `<h2 style="color: white;">Instructions</h2><p>Press <strong>Enter</strong> the moment you think you see the object (max 18s).</p><p>You will then have 10s for the category choice and 10s for the object choice.</p><p><strong>Use the number keys (1, 2, 3, 4, 5).</strong></p><p style="margin-top: 30px;">Press the <strong>SPACEBAR</strong> to continue.</p>`, 
+        choices: [' ']
+    },
+    { 
+        type: jsPsychHtmlKeyboardResponse, 
+        stimulus: `<h2 style="color: white;">Screening Trials</h2><p>We will start with ${total_trials} screening trials. You need ${cutoff_score * 100}% correct to proceed.</p><p style="margin-top: 30px;">Click <strong>Enter</strong> to start the task.</p>`, 
+        choices: ['Enter']
+    }
+];
+
 let preload = {
     type: jsPsychPreload,
-    images: all_stimuli.map(s => s.stimulus)
-};
-
-let welcome_screen = {
-    type: jsPsychHtmlKeyboardResponse,
-    stimulus: '<div style="color: white;"><h2>Mooney Screening Task</h2><p>Welcome! You will see several black-and-white images.</p><p>Press <strong>SPACE</strong> to continue.</p></div>',
-    choices: [' ']
-};
-
-let instruction_screen = {
-    type: jsPsychHtmlKeyboardResponse,
-    stimulus: '<div style="color: white;"><h2>Instructions</h2><p>Press <strong>Enter</strong> as soon as you recognize the object.</p><p>You will then select the correct Category and Object using the 1-5 keys.</p><p>Press <strong>Enter</strong> to start.</p></div>',
-    choices: ['Enter']
+    images: function() { return all_stimuli.map(s => s.stimulus); }, 
+    message: '<p style="font-size: 24px; color: white;">Please wait while the experiment loads...</p>',
+    show_progress_bar: true
 };
 
 // -----------------------------------------------------------
-// 5. REDIRECT TRIAL (UPDATED WITH CORRECT VARIABLES)
+// 5. REDIRECT TRIAL (THE FIXED MERGING LOGIC)
 // -----------------------------------------------------------
+
 const final_redirect_trial = {
     type: jsPsychHtmlKeyboardResponse,
-    stimulus: '<div style="color: white;"><h3>Task Complete</h3><p>Saving your score and returning to the survey...</p></div>',
+    stimulus: `
+        <div style="font-size: 30px; color: white;">
+            <p>Task Complete.</p>
+            <p>Redirecting you back to Qualtrics to save your data...</p>
+            <p style="font-size: 18px;">(Please do not close this window)</p>
+        </div>
+    `,
     choices: "NO_KEYS",
-    trial_duration: 2500, 
+    trial_duration: 2000, 
     on_finish: function() {
+        // 1. Calculate Score
         const total_correct = jsPsych.data.get().filter({task_part: 'Object_Choice', correct: true}).count();
         const final_percent = (total_correct / total_trials).toFixed(3); 
         
+        // 2. Get the ResponseID from the URL
         let response_id = getParameterByName('participant'); 
+        if (!response_id) { response_id = 'NO_ID'; }
+        
+        // 3. Construct and Execute Redirect using Retake Link Syntax
         const base_url = 'https://duke.qualtrics.com/jfe/form/SV_3CRfinpvLk65sBU'; 
         
-        // This URL matches your Qualtrics Embedded Data: participant, MoodleScore, SKIP_FLAG
+        /**
+         * Q_R re-opens the original session.
+         * Q_R_DEL=0 keeps old data (demographics).
+         * participant=${response_id} saves the ID in your new variable.
+         * SKIP_FLAG=1 tells Qualtrics to skip demographics and finish.
+         */
         const target = `${base_url}?Q_R=${encodeURIComponent(response_id)}&Q_R_DEL=0&MoodleScore=${final_percent}&participant=${encodeURIComponent(response_id)}&SKIP_FLAG=1`;
         
+        console.log("Redirecting back to original session:", target);
+        
+        // Use replace to stay in the same window
         window.location.replace(target);
     }
 };
 
 // -----------------------------------------------------------
-// 6. ASSEMBLE TIMELINE
+// 6. ASSEMBLE AND RUN
 // -----------------------------------------------------------
-let main_timeline = [preload, welcome_screen, instruction_screen, full_mooney_trial, final_redirect_trial];
+
+let main_timeline = [];
+main_timeline.push(preload); 
+main_timeline = main_timeline.concat(instruction_timeline); // Adds your 3 original screens
+main_timeline.push(full_mooney_trial); 
+main_timeline.push(final_redirect_trial); 
 
 jsPsych.run(main_timeline);
