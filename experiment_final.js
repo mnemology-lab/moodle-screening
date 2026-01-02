@@ -121,24 +121,33 @@ const final_redirect_trial = {
     choices: "NO_KEYS",
     trial_duration: 2000, 
     on_finish: function() {
-        const total_correct = jsPsych.data.get().filter({task_part: 'Object_Choice', correct: true}).count();
-        const final_percent = (total_correct / total_trials).toFixed(3); 
-        let response_id = getParameterByName('participant'); 
-        const base_url = 'https://duke.qualtrics.com/jfe/form/SV_3CRfinpvLk65sBU'; 
+    const total_correct = jsPsych.data.get().filter({task_part: 'Object_Choice', correct: true}).count();
+    const final_percent = (total_correct / total_trials).toFixed(3); 
+    let response_id = getParameterByName('participant'); 
+    const base_url = 'https://duke.qualtrics.com/jfe/form/SV_3CRfinpvLk65sBU'; 
+    
+    const target = `${base_url}?Q_R=${encodeURIComponent(response_id)}&Q_R_S=1&Q_R_DEL=0&MoodleScore=${final_percent}&participant=${encodeURIComponent(response_id)}&SKIP_FLAG=1`;
+    
+    // 1. Update the original Qualtrics tab
+    if (window.opener && !window.opener.closed) {
+        window.opener.location.href = target;
         
-        // Construct the resume URL
-        const target = `${base_url}?Q_R=${encodeURIComponent(response_id)}&Q_R_S=1&Q_R_DEL=0&MoodleScore=${final_percent}&participant=${encodeURIComponent(response_id)}&SKIP_FLAG=1`;
+        // 2. Try to close the tab
+        window.close();
         
-        // 1. Check if the original Qualtrics tab is still open
-        if (window.opener && !window.opener.closed) {
-            // Update the original tab to the results page
-            window.opener.location.href = target;
-            // Close this GitHub tab
-            window.close();
-        } else {
-            // Fallback: If they closed the original tab, just redirect this one
-            window.location.replace(target);
-        }
+        // 3. FALLBACK: If window.close() is blocked, show a message
+        setTimeout(function() {
+            document.body.innerHTML = `
+                <div style="color: white; text-align: center; margin-top: 100px; font-family: sans-serif;">
+                    <h2>Data Saved!</h2>
+                    <p>The browser blocked this window from closing automatically.</p>
+                    <p style="font-size: 1.2em; font-weight: bold;">Please close this tab and return to the Qualtrics window.</p>
+                </div>`;
+        }, 500);
+
+    } else {
+        // Fallback: If parent is gone, just redirect this window
+        window.location.replace(target);
     }
 };
 
