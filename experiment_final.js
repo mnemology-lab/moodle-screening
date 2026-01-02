@@ -6,7 +6,9 @@ const jsPsych = initJsPsych({
     default_iti: 1, 
 }); 
 
+// Ensure this matches your GitHub folder structure
 const GITHUB_PAGES_BASE = 'images/'; 
+
 const total_trials = 8;
 const cutoff_score = 0.4; 
 
@@ -61,7 +63,7 @@ const mooney_image_template = {
 
 const category_choice_template = {
     type: jsPsychHtmlKeyboardResponse,
-    stimulus: () => `<div style="color: white;"><pre>${jsPsych.timelineVariable('category_choices')}</pre></div>`,
+    stimulus: () => `<div style="color: white; text-align: left;"><h2>Category</h2><pre>${jsPsych.timelineVariable('category_choices')}</pre></div>`,
     choices: ['1', '2', '3', '4', '5'],
     data: { task_part: 'Category_Choice', correct_A: jsPsych.timelineVariable('correct_category_key') },
     on_finish: function(data) { data.correct = data.response === data.correct_A; },
@@ -70,7 +72,7 @@ const category_choice_template = {
 
 const object_choice_template = {
     type: jsPsychHtmlKeyboardResponse,
-    stimulus: () => `<div style="color: white;"><pre>${jsPsych.timelineVariable('object_choices')}</pre></div>`,
+    stimulus: () => `<div style="color: white; text-align: left;"><h2>Object</h2><pre>${jsPsych.timelineVariable('object_choices')}</pre></div>`,
     choices: ['1', '2', '3', '4', '5'],
     data: { task_part: 'Object_Choice', correct_B: jsPsych.timelineVariable('correct_object_key') },
     on_finish: function(data) { data.correct = data.response === data.correct_B; },
@@ -84,21 +86,27 @@ const full_mooney_trial = {
 };
 
 // -----------------------------------------------------------
-// 4. PRELOAD & INSTRUCTIONS
+// 4. PRELOAD & INSTRUCTIONS (RESTORED)
 // -----------------------------------------------------------
 let preload = {
     type: jsPsychPreload,
     images: all_stimuli.map(s => s.stimulus)
 };
 
-let instructions = {
+let welcome_screen = {
     type: jsPsychHtmlKeyboardResponse,
-    stimulus: '<div style="color: white;"><h2>Ready to start?</h2><p>Press Enter to begin the screening.</p></div>',
+    stimulus: '<div style="color: white;"><h2>Mooney Screening Task</h2><p>Welcome! You will see several black-and-white images.</p><p>Press <strong>SPACE</strong> to continue.</p></div>',
+    choices: [' ']
+};
+
+let instruction_screen = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: '<div style="color: white;"><h2>Instructions</h2><p>Press <strong>Enter</strong> as soon as you recognize the object.</p><p>You will then select the correct Category and Object using the 1-5 keys.</p><p>Press <strong>Enter</strong> to start.</p></div>',
     choices: ['Enter']
 };
 
 // -----------------------------------------------------------
-// 5. REDIRECT TRIAL (MERGE DATA)
+// 5. REDIRECT TRIAL (UPDATED WITH CORRECT VARIABLES)
 // -----------------------------------------------------------
 const final_redirect_trial = {
     type: jsPsychHtmlKeyboardResponse,
@@ -112,11 +120,16 @@ const final_redirect_trial = {
         let response_id = getParameterByName('participant'); 
         const base_url = 'https://duke.qualtrics.com/jfe/form/SV_3CRfinpvLk65sBU'; 
         
-        // Q_R_DEL=0 is essential to merge with existing demographic data
+        // This URL matches your Qualtrics Embedded Data: participant, MoodleScore, SKIP_FLAG
         const target = `${base_url}?Q_R=${encodeURIComponent(response_id)}&Q_R_DEL=0&MoodleScore=${final_percent}&participant=${encodeURIComponent(response_id)}&SKIP_FLAG=1`;
         
         window.location.replace(target);
     }
 };
 
-jsPsych.run([preload, instructions, full_mooney_trial, final_redirect_trial]);
+// -----------------------------------------------------------
+// 6. ASSEMBLE TIMELINE
+// -----------------------------------------------------------
+let main_timeline = [preload, welcome_screen, instruction_screen, full_mooney_trial, final_redirect_trial];
+
+jsPsych.run(main_timeline);
