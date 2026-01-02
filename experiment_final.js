@@ -167,14 +167,14 @@ const final_redirect_trial = {
     stimulus: `
         <div style="font-size: 30px; color: white;">
             <p>Task Complete.</p>
-            <p>Redirecting you back to Qualtrics to see your outcome...</p>
+            <p>Redirecting you back to Qualtrics to save your data...</p>
             <p style="font-size: 18px;">(Please do not close this window)</p>
         </div>
     `,
     choices: "NO_KEYS",
     trial_duration: 2000, 
     on_finish: function() {
-        // 1. Calculate Score
+        // 1. Calculate Score (Matches your existing logic)
         const total_correct = jsPsych.data.get().filter({task_part: 'Object_Choice', correct: true}).count();
         const final_percent = (total_correct / total_trials).toFixed(3); 
         
@@ -183,19 +183,20 @@ const final_redirect_trial = {
         if (!response_id) { response_id = 'NO_ID'; }
         
         // 3. Construct and Execute Redirect using Retake Link Syntax
-        // Update this URL if your survey ID changes
+        // Base URL for your Duke/PennState Qualtrics survey
         const base_url = 'https://duke.qualtrics.com/jfe/form/SV_3CRfinpvLk65sBU'; 
         
         /**
          * Q_R re-opens the original session matching the response_id.
-         * Q_R_DEL=0 is CRITICAL: it ensures old data (demographics) is KEPT.
-         * SKIP_FLAG=1 is a custom variable you use in Qualtrics Survey Flow to auto-end the survey.
+         * Q_R_DEL=0 ensures old demographic data is KEPT.
+         * participant=${response_id} fills your new 'participant' column.
+         * SKIP_FLAG=1 triggers the 'auto-finish' logic in your flow.
          */
-        const target = `${base_url}?Q_R=${encodeURIComponent(response_id)}&Q_R_DEL=0&MoodleScore=${final_percent}&subjID=${encodeURIComponent(response_id)}&SKIP_FLAG=1`;
+        const target = `${base_url}?Q_R=${encodeURIComponent(response_id)}&Q_R_DEL=0&MoodleScore=${final_percent}&participant=${encodeURIComponent(response_id)}&SKIP_FLAG=1`;
         
-        console.log("Redirecting back to original session:", target);
+        console.log("Redirecting back to original row:", target);
         
-        // USE REPLACE TO STAY IN THE SAME TAB
+        // Use replace to stay in the same tab and overwrite the GitHub entry in history
         window.location.replace(target);
     }
 };
