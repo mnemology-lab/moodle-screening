@@ -110,7 +110,7 @@ const object_choice_template = {
     },
     choices: ['1', '2', '3', '4', '5'],
     trial_duration: 10000,
-    data: { task_part: 'Object_Choice', correct_B: jsPsych.timelineVariable('correct_object_key') },
+    data: { task_part: 'Object_Choice', correct_B: jsPsych.timelineVariable('object_key') },
     on_finish: function(data) {
         data.correct = data.response === data.correct_B;
     },
@@ -127,7 +127,7 @@ const full_mooney_trial = {
 };
 
 // -----------------------------------------------------------
-// 4. INSTRUCTIONS & PRELOAD (YOUR ORIGINAL EXACT TEXT)
+// 4. INSTRUCTIONS & PRELOAD
 // -----------------------------------------------------------
 
 let instruction_timeline = [
@@ -156,7 +156,7 @@ let preload = {
 };
 
 // -----------------------------------------------------------
-// 5. REDIRECT TRIAL (THE FIXED MERGING LOGIC)
+// 5. REDIRECT TRIAL (METHOD 2: TWO-SURVEY SETUP)
 // -----------------------------------------------------------
 
 const final_redirect_trial = {
@@ -175,32 +175,18 @@ const final_redirect_trial = {
         const total_correct = jsPsych.data.get().filter({task_part: 'Object_Choice', correct: true}).count();
         const final_percent = (total_correct / total_trials).toFixed(3); 
         
-        // 2. Get the ResponseID from the URL
+        // 2. Get the ResponseID from the URL (originally sent as 'participant')
         let response_id = getParameterByName('participant');
         if (!response_id) { response_id = 'NO_ID'; }
 
-        // Debug logging
-        console.log("Retrieved ResponseID:", response_id);
-        console.log("Calculated Score:", final_percent);
-
-        // 3. Construct and Execute Redirect using Retake Link Syntax
+        // 3. Construct and Execute Redirect to Survey B
+        // We use 'part1_id' instead of 'Q_R' to avoid session conflict errors.
         const base_url = 'https://duke.qualtrics.com/jfe/form/SV_3CRfinpvLk65sBU';
+        const target = `${base_url}?part1_id=${response_id}&MoodleScore=${final_percent}`;
 
-        /**
-         * Q_R re-opens the original session (MUST be unencoded raw ResponseID).
-         * Q_R_DEL=0 keeps old data (demographics).
-         * MoodleScore=${final_percent} sets the score in the embedded data.
-         * SKIP_FLAG=1 tells Qualtrics to skip demographics and finish.
-         *
-         * IMPORTANT: Do NOT include participant parameter here - it's already set
-         * via embedded data in Qualtrics and including it can cause duplicate responses.
-         */
-        const target = `${base_url}?Q_R=${response_id}&Q_R_DEL=0&MoodleScore=${final_percent}&SKIP_FLAG=1`;
-
-        console.log("Redirect URL:", target);
-        console.log("Redirecting back to original session...");
+        console.log("Redirecting to Survey B with ID:", response_id);
         
-        // Use replace to stay in the same window
+        // Use replace to stay in the same window and prevent user from going "Back"
         window.location.replace(target);
     }
 };
@@ -211,7 +197,7 @@ const final_redirect_trial = {
 
 let main_timeline = [];
 main_timeline.push(preload); 
-main_timeline = main_timeline.concat(instruction_timeline); // Adds your 3 original screens
+main_timeline = main_timeline.concat(instruction_timeline); 
 main_timeline.push(full_mooney_trial); 
 main_timeline.push(final_redirect_trial); 
 
