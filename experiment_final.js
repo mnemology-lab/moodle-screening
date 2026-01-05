@@ -88,7 +88,7 @@ const category_choice_template = {
     trial_duration: 10000,
     data: { task_part: 'Category_Choice', correct_A: jsPsych.timelineVariable('correct_category_key') },
     on_finish: function(data) {
-        data.correct = data.response === data.correct_A;
+        data.correct = (data.response === data.correct_A);
     },
     conditional_function: function() {
         const prev_data = jsPsych.data.get().last(1).values[0];
@@ -110,9 +110,12 @@ const object_choice_template = {
     },
     choices: ['1', '2', '3', '4', '5'],
     trial_duration: 10000,
-    data: { task_part: 'Object_Choice', correct_B: jsPsych.timelineVariable('object_key') },
+    data: { 
+        task_part: 'Object_Choice', 
+        correct_B: jsPsych.timelineVariable('correct_object_key') // FIXED: Now matches stimuli definition
+    },
     on_finish: function(data) {
-        data.correct = data.response === data.correct_B;
+        data.correct = (data.response === data.correct_B);
     },
     conditional_function: function() {
         const image_trial_data = jsPsych.data.get().filter({task_part: 'Image_Recognition'}).last(1).values[0];
@@ -156,7 +159,7 @@ let preload = {
 };
 
 // -----------------------------------------------------------
-// 5. REDIRECT TRIAL (METHOD 2: TWO-SURVEY SETUP)
+// 5. REDIRECT TRIAL (LOOPBACK METHOD)
 // -----------------------------------------------------------
 
 const final_redirect_trial = {
@@ -172,21 +175,22 @@ const final_redirect_trial = {
     trial_duration: 2000, 
     on_finish: function() {
         // 1. Calculate Score
+        // Filters only the Object Choice trials and counts the ones marked 'true'
         const total_correct = jsPsych.data.get().filter({task_part: 'Object_Choice', correct: true}).count();
         const final_percent = (total_correct / total_trials).toFixed(3); 
         
-        // 2. Get the ResponseID from the URL (originally sent as 'participant')
+        // 2. Get the ResponseID from the URL
         let response_id = getParameterByName('participant');
         if (!response_id) { response_id = 'NO_ID'; }
 
-        // 3. Construct and Execute Redirect to Survey B
-        // We use 'part1_id' instead of 'Q_R' to avoid session conflict errors.
+        // 3. Construct Redirect URL
+        // We use 'part1_id' to signal to Qualtrics that this is a returning participant
         const base_url = 'https://duke.qualtrics.com/jfe/form/SV_3CRfinpvLk65sBU';
         const target = `${base_url}?part1_id=${response_id}&MoodleScore=${final_percent}`;
 
-        console.log("Redirecting to Survey B with ID:", response_id);
+        console.log("Final Score:", final_percent);
+        console.log("Redirecting to:", target);
         
-        // Use replace to stay in the same window and prevent user from going "Back"
         window.location.replace(target);
     }
 };
