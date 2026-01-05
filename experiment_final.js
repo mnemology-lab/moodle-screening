@@ -6,10 +6,16 @@ const jsPsych = initJsPsych({
     default_iti: 1, 
 }); 
 
+// 🎯 CRITICAL PATH CHECK: Ensure this matches your GitHub folder name!
 const GITHUB_PAGES_BASE = 'images/'; 
-const total_trials = 8;
-const cutoff_score = 0.4; 
 
+const total_trials = 8;
+const cutoff_score = 0.4; // 40%
+
+/**
+ * Utility function to parse URL parameters.
+ * Used to retrieve the Qualtrics ResponseID passed as 'participant'
+ */
 function getParameterByName(name, url = window.location.href) {
     name = name.replace(/[\[\]]/g, '\\$&');
     var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
@@ -56,26 +62,62 @@ const mooney_image_template = {
     stimulus_width: 800,  
     trial_duration: 18000, 
     prompt: '<p style="color: white;">Press <strong>Enter</strong> the moment you identify the object.</p>',
-    data: { task_part: 'Image_Recognition' },
-    on_finish: function(data) { data.object_identified = (data.response !== null); }
+    data: { 
+        task_part: 'Image_Recognition',
+        correct_category_key: jsPsych.timelineVariable('correct_category_key'),
+        correct_object_key: jsPsych.timelineVariable('correct_object_key')
+    },
+    on_finish: function(data) {
+        data.object_identified = (data.response !== null);
+    }
 };
 
 const category_choice_template = {
     type: jsPsychHtmlKeyboardResponse,
-    stimulus: () => `<div style="color: white; text-align: left;"><h2>Category</h2><pre>${jsPsych.timelineVariable('category_choices')}</pre></div>`,
+    stimulus: function(){
+        return `
+            <div style="text-align: left; color: white;">
+                <h2>Category Choice</h2>
+                <p>What category is the object from?</p>
+                <pre>${jsPsych.timelineVariable('category_choices')}</pre>
+                <p>Press the corresponding number key (1-5).</p>
+            </div>
+        `;
+    },
     choices: ['1', '2', '3', '4', '5'],
+    trial_duration: 10000,
     data: { task_part: 'Category_Choice', correct_A: jsPsych.timelineVariable('correct_category_key') },
-    on_finish: function(data) { data.correct = data.response === data.correct_A; },
-    conditional_function: () => jsPsych.data.get().last(1).values[0].object_identified
+    on_finish: function(data) {
+        data.correct = data.response === data.correct_A;
+    },
+    conditional_function: function() {
+        const prev_data = jsPsych.data.get().last(1).values[0];
+        return prev_data.object_identified;
+    }
 };
 
 const object_choice_template = {
     type: jsPsychHtmlKeyboardResponse,
-    stimulus: () => `<div style="color: white; text-align: left;"><h2>Object</h2><pre>${jsPsych.timelineVariable('object_choices')}</pre></div>`,
+    stimulus: function(){
+        return `
+            <div style="text-align: left; color: white;">
+                <h2>Object Choice</h2>
+                <p>Which object did you see?</p>
+                <pre>${jsPsych.timelineVariable('object_choices')}</pre>
+                <p>Press the corresponding number key (1-5).</p>
+            </div>
+        `;
+    },
     choices: ['1', '2', '3', '4', '5'],
+    trial_duration: 10000,
     data: { task_part: 'Object_Choice', correct_B: jsPsych.timelineVariable('correct_object_key') },
-    on_finish: function(data) { data.correct = data.response === data.correct_B; },
-    conditional_function: () => jsPsych.data.get().filter({task_part: 'Image_Recognition'}).last(1).values[0].object_identified
+    on_finish: function(data) {
+        data.correct = data.response === data.correct_B;
+    },
+    conditional_function: function() {
+        const image_trial_data = jsPsych.data.get().filter({task_part: 'Image_Recognition'}).last(1).values[0];
+        return image_trial_data.object_identified;
+    }
 };
 
 const full_mooney_trial = {
@@ -85,12 +127,8 @@ const full_mooney_trial = {
 };
 
 // -----------------------------------------------------------
-// 4. PRELOAD & INSTRUCTIONS
+// 4. INSTRUCTIONS & PRELOAD (YOUR ORIGINAL EXACT TEXT)
 // -----------------------------------------------------------
-let preload = {
-    type: jsPsychPreload,
-    images: all_stimuli.map(s => s.stimulus)
-};
 
 let instruction_timeline = [
     { 
@@ -110,52 +148,71 @@ let instruction_timeline = [
     }
 ];
 
-// -----------------------------------------------------------
-// 5. REDIRECT TRIAL (TWO-TAB VERSION)
-// -----------------------------------------------------------
-const final_redirect_trial = {
-    type: jsPsychHtmlKeyboardResponse,
-    stimulus: '<div style="color: white;"><h3>Task Complete</h3><p>Syncing with survey and closing this window...</p></div>',
-    choices: "NO_KEYS",
-    trial_duration: 2000, 
-    on_finish: function() {
-        const total_correct = jsPsych.data.get().filter({task_part: 'Object_Choice', correct: true}).count();
-        const final_percent = (total_correct / total_trials).toFixed(3); 
-        let response_id = getParameterByName('participant'); 
-        const base_url = 'https://duke.qualtrics.com/jfe/form/SV_3CRfinpvLk65sBU'; 
-        
-        const target = const target = `${base_url}?Q_R=${encodeURIComponent(response_id)}&Q_R_S=1&Q_R_DEL=0&Q_Step=1&MoodleScore=${final_percent}&participant=${encodeURIComponent(response_id)}&SKIP_FLAG=1`;
-        
-        // 1. Update the original Qualtrics tab
-        if (window.opener && !window.opener.closed) {
-            window.opener.location.href = target;
-            
-            // 2. Try to close the tab
-            window.close();
-            
-            // 3. FALLBACK: If window.close() is blocked, show a message
-            setTimeout(function() {
-                document.body.innerHTML = `
-                    <div style="color: white; text-align: center; margin-top: 100px; font-family: sans-serif;">
-                        <h2>Data Saved!</h2>
-                        <p>The browser blocked this window from closing automatically.</p>
-                        <p style="font-size: 1.2em; font-weight: bold;">Please close this tab and return to the Qualtrics window.</p>
-                    </div>`;
-            }, 500);
-
-        } else {
-            // Fallback: If parent is gone, just redirect this window
-            window.location.replace(target);
-        }
-    } // Fixed: added missing brace
+let preload = {
+    type: jsPsychPreload,
+    images: function() { return all_stimuli.map(s => s.stimulus); }, 
+    message: '<p style="font-size: 24px; color: white;">Please wait while the experiment loads...</p>',
+    show_progress_bar: true
 };
 
 // -----------------------------------------------------------
-// 6. ASSEMBLE & RUN
+// 5. REDIRECT TRIAL (THE FIXED MERGING LOGIC)
 // -----------------------------------------------------------
-let main_timeline = [preload];
-main_timeline = main_timeline.concat(instruction_timeline);
-main_timeline.push(full_mooney_trial);
-main_timeline.push(final_redirect_trial);
+
+const final_redirect_trial = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `
+        <div style="font-size: 30px; color: white;">
+            <p>Task Complete.</p>
+            <p>Redirecting you back to Qualtrics to save your data...</p>
+            <p style="font-size: 18px;">(Please do not close this window)</p>
+        </div>
+    `,
+    choices: "NO_KEYS",
+    trial_duration: 2000, 
+    on_finish: function() {
+        // 1. Calculate Score
+        const total_correct = jsPsych.data.get().filter({task_part: 'Object_Choice', correct: true}).count();
+        const final_percent = (total_correct / total_trials).toFixed(3); 
+        
+        // 2. Get the ResponseID from the URL
+        let response_id = getParameterByName('participant');
+        if (!response_id) { response_id = 'NO_ID'; }
+
+        // Debug logging
+        console.log("Retrieved ResponseID:", response_id);
+        console.log("Calculated Score:", final_percent);
+
+        // 3. Construct and Execute Redirect using Retake Link Syntax
+        const base_url = 'https://duke.qualtrics.com/jfe/form/SV_3CRfinpvLk65sBU';
+
+        /**
+         * Q_R re-opens the original session (MUST be unencoded raw ResponseID).
+         * Q_R_DEL=0 keeps old data (demographics).
+         * MoodleScore=${final_percent} sets the score in the embedded data.
+         * SKIP_FLAG=1 tells Qualtrics to skip demographics and finish.
+         *
+         * IMPORTANT: Do NOT include participant parameter here - it's already set
+         * via embedded data in Qualtrics and including it can cause duplicate responses.
+         */
+        const target = `${base_url}?Q_R=${response_id}&Q_R_DEL=0&MoodleScore=${final_percent}&SKIP_FLAG=1`;
+
+        console.log("Redirect URL:", target);
+        console.log("Redirecting back to original session...");
+        
+        // Use replace to stay in the same window
+        window.location.replace(target);
+    }
+};
+
+// -----------------------------------------------------------
+// 6. ASSEMBLE AND RUN
+// -----------------------------------------------------------
+
+let main_timeline = [];
+main_timeline.push(preload); 
+main_timeline = main_timeline.concat(instruction_timeline); // Adds your 3 original screens
+main_timeline.push(full_mooney_trial); 
+main_timeline.push(final_redirect_trial); 
 
 jsPsych.run(main_timeline);
