@@ -29,12 +29,12 @@ function getParameterByName(name, url = window.location.href) {
 
 // --- Raven Items ---
 const raven_items = [
-    { stimulus: 'Raven1.JPG', correct: '6' }, { stimulus: 'Raven4.JPG', correct: '5' },
-    { stimulus: 'Raven8.JPG', correct: '2' }, { stimulus: 'Raven11.JPG', correct: '6' },
-    { stimulus: 'Raven15.JPG', correct: '3' }, { stimulus: 'Raven18.JPG', correct: '8' },
-    { stimulus: 'Raven21.JPG', correct: '8' }, { stimulus: 'Raven23.JPG', correct: '7' },
-    { stimulus: 'Raven25.JPG', correct: '8' }, { stimulus: 'Raven30.JPG', correct: '6' },
-    { stimulus: 'Raven31.JPG', correct: '5' }, { stimulus: 'Raven35.JPG', correct: '4' }
+    { stimulus: 'raven1.jpg', correct: '6' }, { stimulus: 'raven4.jpg', correct: '5' },
+    { stimulus: 'raven8.jpg', correct: '2' }, { stimulus: 'raven11.jpg', correct: '6' },
+    { stimulus: 'raven15.jpg', correct: '3' }, { stimulus: 'raven18.jpg', correct: '8' },
+    { stimulus: 'raven21.jpg', correct: '8' }, { stimulus: 'raven23.jpg', correct: '7' },
+    { stimulus: 'raven25.jpg', correct: '8' }, { stimulus: 'raven30.jpg', correct: '6' },
+    { stimulus: 'raven31.jpg', correct: '5' }, { stimulus: 'raven35.jpg', correct: '4' }
 ];
 
 // --- Moodle Items (Copied from experiment_final.js) ---
