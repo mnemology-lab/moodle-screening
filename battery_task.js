@@ -90,7 +90,7 @@ const fluency_instructions = {
             <ul>
                 <li>Only nouns count as words!</li>
                 <li>NOT allowed are: proper names (e.g., specific brand names like "Ikea").</li>
-                <li>Do not use words with the same word stem (e.g., "waterbed" if you already wrote "bed").</li>
+                <li>Do not use words with the same word stem.</li>
                 <li>Do not repeat words.</li>
             </ul>
             <p>You will receive 2 categories. You have exactly <strong>90 seconds</strong> per category.</p>
@@ -104,53 +104,79 @@ const fluency_instructions = {
 let fluency_timeline = [fluency_instructions];
 
 ["Animals", "Plants"].forEach(cat => {
-    // 1. Prompt
+
+    // Prompt screen
     fluency_timeline.push({
         type: jsPsychHtmlKeyboardResponse,
-        stimulus: `<h2 style="color:white;">Category: ${cat}</h2><p style="color:white;">Press Enter to start the 90-second timer.</p>`,
+        stimulus: `
+            <h2 style="color:white;">Category: ${cat}</h2>
+            <p style="color:white;">Press Enter to start the 90-second timer.</p>
+        `,
         choices: ['Enter']
     });
 
-    // 2. Task with Timer
+    // Timed fluency task
     fluency_timeline.push({
         type: jsPsychSurveyHtmlForm,
         html: `
             <div style="color: white; text-align: center;">
                 <h2>Category: <span style="text-decoration: underline;">${cat}</span></h2>
-                <div id="timer_display" style="font-size: 24px; font-weight: bold; color: #FF5733; margin-bottom: 10px;">Time Remaining: 90</div>
-                <textarea id="resp" name="response" rows="15" cols="60" style="font-size:18px; padding:10px; border-radius:5px;" autofocus></textarea>
-                <p>Type as many words as possible. Separate words with a comma or new line.</p>
+
+                <div id="timer_display"
+                     style="font-size:24px; font-weight:bold; color:#FF5733; margin-bottom:10px;">
+                    Time Remaining: 90
+                </div>
+
+                <textarea id="resp" name="response" rows="15" cols="60"
+                    style="font-size:18px; padding:10px; border-radius:5px;"
+                    autofocus></textarea>
+
+                <p id="timeout_msg"
+                   style="display:none; color:#FFD700; font-size:18px;">
+                    Time is up. Please wait…
+                </p>
             </div>
+
             <style>
-                /* Hide the default button to enforce strict timing */
                 #jspsych-survey-html-form-next { display: none; }
             </style>
         `,
-        trial_duration: 90000, // 90 Seconds exactly
+        trial_duration: 90000, // backup safety
         on_load: function() {
-            // Visual Timer Logic
-            var time_left = 90;
-            var interval = setInterval(function(){
+            let time_left = 90;
+            const textarea = document.getElementById('resp');
+            const display = document.getElementById('timer_display');
+            const msg = document.getElementById('timeout_msg');
+
+            const interval = setInterval(() => {
                 time_left--;
-                var display = document.getElementById('timer_display');
-                if(display) {
-                    display.innerHTML = "Time Remaining: " + time_left;
-                }
-                if(time_left <= 0) {
+                display.textContent = `Time Remaining: ${time_left}`;
+
+                if (time_left <= 0) {
                     clearInterval(interval);
+                    textarea.disabled = true;
+                    msg.style.display = 'block';
+
+                    jsPsych.finishTrial({
+                        response: { response: textarea.value }
+                    });
                 }
             }, 1000);
         },
-        on_finish: (data) => {
-            // Simple word count estimate
+        on_finish: function(data) {
             const text = (data.response.response || "").trim();
-            // Split by newlines, commas, or spaces
-            const words = text.split(/[\n,]+/).filter(w => w.trim().length > 0);
+            const words = text
+                .split(/[\n,]+/)
+                .map(w => w.trim())
+                .filter(w => w.length > 0);
+
             data.word_count = words.length;
             data.task = "fluency";
+            data.category = cat;
         }
     });
 });
+
 
 // -----------------------------------------------------------
 // 5. TASK 2: RAVEN'S MATRICES
