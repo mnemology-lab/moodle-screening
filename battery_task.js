@@ -198,9 +198,9 @@ const raven_intro_1 = {
     stimulus: `
         <h2 style="color:white;">Part 2: Completing Patterns</h2>
         <div style="color:white; text-align:left; max-width:800px; margin:auto; font-size:18px;">
-            [cite_start]<p>In this part of the experiment, you will receive 12 panels, each containing incomplete patterns[cite: 2].</p>
-            [cite_start]<p>Each panel consists of 3x3 individual images that form a pattern[cite: 3].</p>
-            [cite_start]<p>A part of this pattern has been cut out; i.e., the individual image in the bottom-right section of the panel is always missing[cite: 4].</p>
+            <p>In this part of the experiment, you will receive 12 panels, each containing incomplete patterns.</p>
+            <p>Each panel consists of 3x3 individual images that form a pattern.</p>
+            <p>A part of this pattern has been cut out; i.e., the individual image in the bottom-right section of the panel is always missing.</p>
             <p>On the next page, you will see what such a pattern can look like.</p>
         </div>
         <p style="color:white; margin-top:30px;">Press <strong>Enter</strong> to continue.</p>
@@ -215,7 +215,7 @@ const raven_practice_1_view = {
     stimulus_height: 500,
     prompt: `
         <div style="color:white; max-width:800px; margin:20px auto;">
-            [cite_start]<p>In addition, below each panel you will be given 8 answer options, of which only one correctly completes the pattern[cite: 6].</p>
+            <p>In addition, below each panel you will be given 8 answer options, of which only one correctly completes the pattern.</p>
             <p>Press <strong>Enter</strong> to see the options.</p>
         </div>
     `
@@ -228,7 +228,7 @@ const raven_practice_1_respond = {
     stimulus_height: 500,
     prompt: `
         <div style="color:white; max-width:800px; margin:20px auto;">
-            [cite_start]<p>Look at the pattern and think about which of the 8 answer options correctly completes it[cite: 7].</p>
+            <p>Look at the pattern and think about which of the 8 answer options correctly completes it.</p>
             <p>Press the corresponding key (<strong>1–8</strong>) to select your answer.</p>
         </div>
     `,
@@ -240,11 +240,11 @@ const raven_practice_feedback_1 = {
     stimulus: `
         <h2 style="color:white;">Practice Feedback</h2>
         <div style="color:white; text-align:left; max-width:800px; margin:auto; font-size:18px;">
-            [cite_start]<p>In this example, the correct solution was number <strong>8</strong>[cite: 7].</p>
-            [cite_start]<p>The individual images on each panel follow a systematic rule-based relationship[cite: 8].</p>
+            <p>In this example, the correct solution was number <strong>8</strong>.</p>
+            <p>The individual images on each panel follow a systematic rule-based relationship.</p>
             <ul>
-                [cite_start]<li>Look at each row (horizontally) and decide what the solution should look like[cite: 9].</li>
-                [cite_start]<li>Then look at each column (vertically) and decide again[cite: 10].</li>
+                <li>Look at each row (horizontally) and decide what the solution should look like.</li>
+                <li>Then look at each column (vertically) and decide again.</li>
             </ul>
             <p>Finally, choose the answer option that works for both directions.</p>
             <p>Let's try one more practice puzzle.</p>
@@ -273,12 +273,12 @@ const raven_practice_feedback_2 = {
     stimulus: `
         <h2 style="color:white;">Ready to start?</h2>
         <div style="color:white; text-align:left; max-width:800px; margin:auto; font-size:18px;">
-            [cite_start]<p>In this example, the correct solution was number <strong>4</strong>[cite: 13].</p>
+            <p>In this example, the correct solution was number <strong>4</strong>.</p>
             <p>You will now begin the actual task.</p>
             <ul>
-                [cite_start]<li>You have a maximum of <strong>100 seconds</strong> to solve each panel[cite: 13].</li>
+                <li>You have a maximum of <strong>100 seconds</strong> to solve each panel.</li>
                 <li>If you have not found a solution by then, a new panel will be presented.</li>
-                <li>Accuracy is what matters. [cite_start]Try to solve them in order[cite: 14].</li>
+                <li>Accuracy is what matters. Try to solve them in order.</li>
             </ul>
         </div>
         <p style="color:white; margin-top:30px;">Press <strong>Enter</strong> to begin the Raven task.</p>
@@ -294,7 +294,7 @@ const raven_procedure = {
         stimulus: jsPsych.timelineVariable('stimulus'),
         choices: ['1','2','3','4','5','6','7','8'],
         stimulus_height: 600, // Ensure images fit
-        [cite_start]trial_duration: 100000, // 100 seconds per trial as per IQX [cite: 13]
+        trial_duration: 100000, // 100 seconds per trial as per IQX
         prompt: "<p style='color:white;'>Choose the piece (1-8) that completes the pattern.</p>",
         data: { task: "raven", correct_key: jsPsych.timelineVariable('correct') },
         on_finish: (data) => { 
