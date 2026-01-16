@@ -241,7 +241,6 @@ const raven_practice_feedback_1 = {
         <h2 style="color:white;">Practice Feedback</h2>
         <div style="color:white; text-align:left; max-width:800px; margin:auto; font-size:18px;">
             [cite_start]<p>In this example, the correct solution was number <strong>8</strong>[cite: 7].</p>
-            <p><strong>Here is the rule:</strong></p>
             [cite_start]<p>The individual images on each panel follow a systematic rule-based relationship[cite: 8].</p>
             <ul>
                 [cite_start]<li>Look at each row (horizontally) and decide what the solution should look like[cite: 9].</li>
@@ -272,7 +271,7 @@ const raven_practice_2_respond = {
 const raven_practice_feedback_2 = {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: `
-        <h2 style="color:white;">Ready to Start?</h2>
+        <h2 style="color:white;">Ready to start?</h2>
         <div style="color:white; text-align:left; max-width:800px; margin:auto; font-size:18px;">
             [cite_start]<p>In this example, the correct solution was number <strong>4</strong>[cite: 13].</p>
             <p>You will now begin the actual task.</p>
