@@ -198,7 +198,7 @@ const raven_intro_1 = {
     stimulus: `
         <h2 style="color:white;">Part 2: Completing Patterns</h2>
         <div style="color:white; text-align:left; max-width:800px; margin:auto; font-size:18px;">
-            <p>In this part of the experiment, you will receive 12 panels, each containing incomplete patterns.</p>
+            <p>In this part of the experiment, you will see 12 panels, each containing an incomplete pattern.</p>
             <p>Each panel consists of 3x3 individual images that form a pattern.</p>
             <p>A part of this pattern has been cut out; i.e., the individual image in the bottom-right section of the panel is always missing.</p>
             <p>On the next page, you will see what such a pattern can look like.</p>
