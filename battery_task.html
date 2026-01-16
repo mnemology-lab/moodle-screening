@@ -18,14 +18,50 @@
             font-family: Arial, sans-serif;
             margin: 0; padding: 0;
             overflow: hidden; 
+            /* Body centers the main container */
             display: flex; justify-content: center; align-items: center;
             min-height: 100vh; width: 100vw;
         }
-        #jspsych-display { width: 100vw; height: 100vh; text-align: center; }
-        .jspsych-content { color: white; font-size: 1.4em; max-width: 1000px; }
+        
+        /* UPDATED: This container now Flex-centers its internal content */
+        #jspsych-display { 
+            width: 100vw; 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center;
+            outline: none;
+        }
+        
+        .jspsych-content { 
+            color: white; 
+            font-size: 1.4em; 
+            max-width: 1000px;
+            /* Ensure content doesn't shift left */
+            margin: auto; 
+        }
+        
         img { max-height: 70vh; max-width: 90vw; }
-        textarea { font-size: 1.2em; padding: 15px; width: 80%; max-width: 600px; }
-        pre { text-align: left; margin: 20px auto; border: 1px solid #555; padding: 20px; background-color: #111; white-space: pre-wrap; }
+        
+        textarea { 
+            font-size: 1.2em; 
+            padding: 15px; 
+            width: 80%; 
+            max-width: 600px;
+            display: block;
+            margin: 20px auto; 
+        }
+        
+        pre { 
+            text-align: left; 
+            margin: 20px auto; 
+            border: 1px solid #555; 
+            padding: 20px; 
+            background-color: #111; 
+            white-space: pre-wrap; 
+        }
+        
         h2 { color: white; font-size: 2em; }
     </style>
 </head>
