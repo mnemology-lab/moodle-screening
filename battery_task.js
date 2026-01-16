@@ -342,8 +342,8 @@ const final_redirect = {
         const moodleScore = (moodleCorrect / 8).toFixed(2);
         
         // --- REDIRECT ---
-        // 1. Get ID from URL (input parameter 'ResponseID')
-        let resId = getParameterByName('ResponseID');
+        // 1. Get ID from URL (input parameter 'participant')
+        let resId = getParameterByName('participant');
         if (!resId || resId === 'null') { resId = 'NO_ID'; }
 
         // 2. Build URL (Output parameter 'part1_ID' capitalized)
