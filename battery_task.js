@@ -347,7 +347,7 @@ const final_redirect = {
         if (!resId || resId === 'null') { resId = 'NO_ID'; }
 
         // 2. Build URL (Output parameter 'part1_ID' capitalized)
-        const baseUrl = "https://duke.qualtrics.com/jfe/form/SV_3CRfinpvLk65sBU";
+        const baseUrl = "https://duke.qualtrics.com/jfe/form/SV_3gFtKzZ3XQOGBTw";
         // Ensure variable names match Qualtrics Embedded Data exactly
         const redirectUrl = `${baseUrl}?part1_ID=${resId}&FluencyScore=${fluencyScore}&RavenScore=${ravenScore}&MoodleScore=${moodleScore}`;
         
