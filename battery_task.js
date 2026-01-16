@@ -37,6 +37,13 @@ const raven_items = [
     { stimulus: 'raven31.jpg', correct: '5' }, { stimulus: 'raven35.jpg', correct: '4' }
 ];
 
+// --- Raven Practice Items (derived from .iqx) ---
+const raven_practice_images = [
+    'Raven_Bsp_nurTafel2.jpg', 
+    'Raven_Bsp.jpg', 
+    'Raven_Bsp2.jpg'
+];
+
 // --- Moodle Items (Copied from experiment_final.js) ---
 const moodle_items = [
     { stimulus: 'A_cougar_sigma_3.jpg', correct_category_key: '1', correct_object_key: '3', category_choices: '1) mammal\n2) insect\n3) reptile\n4) household item\n5) bird', object_choices: '1) bunny\n2) rat\n3) cougar\n4) mountain\n5) crocodile' },
@@ -52,7 +59,9 @@ const moodle_items = [
 // --- Preload ---
 const preload = {
     type: jsPsychPreload,
-    images: raven_items.concat(moodle_items).map(i => GITHUB_PAGES_BASE + i.stimulus),
+    images: raven_items.map(i => GITHUB_PAGES_BASE + i.stimulus)
+            .concat(moodle_items.map(i => GITHUB_PAGES_BASE + i.stimulus))
+            .concat(raven_practice_images.map(i => GITHUB_PAGES_BASE + i)),
     message: '<p style="color: white; font-size: 24px;">Loading tasks...</p>'
 };
 
@@ -179,24 +188,106 @@ let fluency_timeline = [fluency_instructions];
 
 
 // -----------------------------------------------------------
-// 5. TASK 2: RAVEN'S MATRICES
+// 5. TASK 2: RAVEN'S MATRICES (Instructions, Practice, & Task)
 // -----------------------------------------------------------
 
-const raven_instructions = {
+// --- 5a. Raven Instructions & Practice (Translated from .iqx) ---
+
+const raven_intro_1 = {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: `
         <h2 style="color:white;">Part 2: Completing Patterns</h2>
         <div style="color:white; text-align:left; max-width:800px; margin:auto; font-size:18px;">
-            <p>In this portion of the screening, you will see patterns with a missing piece.</p>
-            <p>Each panel consists of images that follow a systematic rule (horizontally and vertically).</p>
-            <p>Your task is to choose the piece from the 8 options below that correctly completes the pattern.</p>
-            <p>Use the number keys <strong>1-8</strong> on your keyboard to select your answer.</p>
-            <p>Try to be as accurate as possible.</p>
+            [cite_start]<p>In this part of the experiment, you will receive 12 panels, each containing incomplete patterns[cite: 2].</p>
+            [cite_start]<p>Each panel consists of 3x3 individual images that form a pattern[cite: 3].</p>
+            [cite_start]<p>A part of this pattern has been cut out; i.e., the individual image in the bottom-right section of the panel is always missing[cite: 4].</p>
+            <p>On the next page, you will see what such a pattern can look like.</p>
         </div>
-        <p style="color:white; margin-top:30px;">Press <strong>Enter</strong> to start the Raven task.</p>
+        <p style="color:white; margin-top:30px;">Press <strong>Enter</strong> to continue.</p>
     `,
     choices: ['Enter']
 };
+
+const raven_practice_1_view = {
+    type: jsPsychImageKeyboardResponse,
+    stimulus: GITHUB_PAGES_BASE + 'Raven_Bsp_nurTafel2.jpg',
+    choices: ['Enter'],
+    stimulus_height: 500,
+    prompt: `
+        <div style="color:white; max-width:800px; margin:20px auto;">
+            [cite_start]<p>In addition, below each panel you will be given 8 answer options, of which only one correctly completes the pattern[cite: 6].</p>
+            <p>Press <strong>Enter</strong> to see the options.</p>
+        </div>
+    `
+};
+
+const raven_practice_1_respond = {
+    type: jsPsychImageKeyboardResponse,
+    stimulus: GITHUB_PAGES_BASE + 'Raven_Bsp.jpg',
+    choices: ['1','2','3','4','5','6','7','8'],
+    stimulus_height: 500,
+    prompt: `
+        <div style="color:white; max-width:800px; margin:20px auto;">
+            [cite_start]<p>Look at the pattern and think about which of the 8 answer options correctly completes it[cite: 7].</p>
+            <p>Press the corresponding key (<strong>1–8</strong>) to select your answer.</p>
+        </div>
+    `,
+    data: { task: "raven_practice", correct_key: '8' } // IQX Intro 4 says solution is 8
+};
+
+const raven_practice_feedback_1 = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `
+        <h2 style="color:white;">Practice Feedback</h2>
+        <div style="color:white; text-align:left; max-width:800px; margin:auto; font-size:18px;">
+            [cite_start]<p>In this example, the correct solution was number <strong>8</strong>[cite: 7].</p>
+            <p><strong>Here is the rule:</strong></p>
+            [cite_start]<p>The individual images on each panel follow a systematic rule-based relationship[cite: 8].</p>
+            <ul>
+                [cite_start]<li>Look at each row (horizontally) and decide what the solution should look like[cite: 9].</li>
+                [cite_start]<li>Then look at each column (vertically) and decide again[cite: 10].</li>
+            </ul>
+            <p>Finally, choose the answer option that works for both directions.</p>
+            <p>Let's try one more practice puzzle.</p>
+        </div>
+        <p style="color:white; margin-top:30px;">Press <strong>Enter</strong> to continue.</p>
+    `,
+    choices: ['Enter']
+};
+
+const raven_practice_2_respond = {
+    type: jsPsychImageKeyboardResponse,
+    stimulus: GITHUB_PAGES_BASE + 'Raven_Bsp2.jpg',
+    choices: ['1','2','3','4','5','6','7','8'],
+    stimulus_height: 500,
+    prompt: `
+        <div style="color:white; max-width:800px; margin:20px auto;">
+            <p>Which piece completes this pattern?</p>
+            <p>Press <strong>1–8</strong>.</p>
+        </div>
+    `,
+    data: { task: "raven_practice", correct_key: '4' } // IQX Intro 5 says solution is 4
+};
+
+const raven_practice_feedback_2 = {
+    type: jsPsychHtmlKeyboardResponse,
+    stimulus: `
+        <h2 style="color:white;">Ready to Start?</h2>
+        <div style="color:white; text-align:left; max-width:800px; margin:auto; font-size:18px;">
+            [cite_start]<p>In this example, the correct solution was number <strong>4</strong>[cite: 13].</p>
+            <p>You will now begin the actual task.</p>
+            <ul>
+                [cite_start]<li>You have a maximum of <strong>100 seconds</strong> to solve each panel[cite: 13].</li>
+                <li>If you have not found a solution by then, a new panel will be presented.</li>
+                <li>Accuracy is what matters. [cite_start]Try to solve them in order[cite: 14].</li>
+            </ul>
+        </div>
+        <p style="color:white; margin-top:30px;">Press <strong>Enter</strong> to begin the Raven task.</p>
+    `,
+    choices: ['Enter']
+};
+
+// --- 5b. Raven Main Procedure ---
 
 const raven_procedure = {
     timeline: [{
@@ -204,9 +295,12 @@ const raven_procedure = {
         stimulus: jsPsych.timelineVariable('stimulus'),
         choices: ['1','2','3','4','5','6','7','8'],
         stimulus_height: 600, // Ensure images fit
+        [cite_start]trial_duration: 100000, // 100 seconds per trial as per IQX [cite: 13]
         prompt: "<p style='color:white;'>Choose the piece (1-8) that completes the pattern.</p>",
         data: { task: "raven", correct_key: jsPsych.timelineVariable('correct') },
-        on_finish: (data) => { data.correct = (data.response === data.correct_key); }
+        on_finish: (data) => { 
+            data.correct = (data.response === data.correct_key); 
+        }
     }],
     timeline_variables: raven_items.map(i => ({ ...i, stimulus: GITHUB_PAGES_BASE + i.stimulus }))
 };
@@ -365,8 +459,16 @@ const timeline = [
     preload,
     general_intro,
     ...fluency_timeline,
-    raven_instructions,
+    
+    // Updated Raven Sequence
+    raven_intro_1,
+    raven_practice_1_view,
+    raven_practice_1_respond,
+    raven_practice_feedback_1,
+    raven_practice_2_respond,
+    raven_practice_feedback_2,
     raven_procedure,
+    
     moodle_instructions,
     moodle_procedure,
     final_redirect
