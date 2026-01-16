@@ -64,7 +64,7 @@ const general_intro = {
     stimulus: `
         <h1 style="color:white;">Welcome</h1>
         <p style="color:white; text-align:left; max-width:800px; margin:auto;">
-            In this task battery you will complete three different blocks:<br><br>
+            In this screening battery, you will complete three different tasks:<br><br>
             a) <strong>Word fluency task</strong> (5 min)<br>
             b) <strong>Pattern completion task</strong> (10 min)<br>
             c) <strong>Object recognition task</strong> (6 min)<br><br>
@@ -85,15 +85,15 @@ const fluency_instructions = {
         <h2 style="color:white;">Part 1: Generating Words</h2>
         <div style="color:white; text-align:left; max-width:800px; margin:auto; font-size: 18px;">
             <p>In this task, you will be shown individual categories (e.g., “Furniture”).</p>
-            <p>Your task is to write down all the names you can think of that fall into this category.</p>
+            <p>Your task is to write down all the words you can think of that fall into this category.</p>
             <p><strong>Please follow these rules:</strong></p>
             <ul>
-                <li>Only nouns count as words!</li>
-                <li>NOT allowed are: proper names (e.g., specific brand names like "Ikea").</li>
-                <li>Do not use words with the same word stem.</li>
+                <li>Only nouns count.</li>
+                <li>NOT allowed are: proper nouns (e.g., specific brand names like "IKEA").</li>
+                <li>Do not list multiple words that have the same word stem (e.g., "armchair" and "chair").</li>
                 <li>Do not repeat words.</li>
             </ul>
-            <p>You will receive 2 categories. You have exactly <strong>90 seconds</strong> per category.</p>
+            <p>You will see 2 total categories. You have exactly <strong>90 seconds</strong> per category to list as many words as possible.</p>
             <p>The screen will automatically advance when time is up.</p>
         </div>
         <p style="color:white; margin-top:30px;">Press <strong>Enter</strong> to begin.</p>
@@ -187,7 +187,7 @@ const raven_instructions = {
     stimulus: `
         <h2 style="color:white;">Part 2: Completing Patterns</h2>
         <div style="color:white; text-align:left; max-width:800px; margin:auto; font-size:18px;">
-            <p>In this part, you will see patterns with a missing piece.</p>
+            <p>In this portion of the screening, you will see patterns with a missing piece.</p>
             <p>Each panel consists of images that follow a systematic rule (horizontally and vertically).</p>
             <p>Your task is to choose the piece from the 8 options below that correctly completes the pattern.</p>
             <p>Use the number keys <strong>1-8</strong> on your keyboard to select your answer.</p>
