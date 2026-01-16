@@ -39,9 +39,9 @@ const raven_items = [
 
 // --- Raven Practice Items (derived from .iqx) ---
 const raven_practice_images = [
-    'Raven_Bsp_nurTafel2.jpg', 
-    'Raven_Bsp.jpg', 
-    'Raven_Bsp2.jpg'
+    'raven_bsp_nurtafel2.jpg', 
+    'raven_bsp.jpg', 
+    'raven_bsp2.jpg'
 ];
 
 // --- Moodle Items (Copied from experiment_final.js) ---
@@ -210,7 +210,7 @@ const raven_intro_1 = {
 
 const raven_practice_1_view = {
     type: jsPsychImageKeyboardResponse,
-    stimulus: GITHUB_PAGES_BASE + 'Raven_Bsp_nurTafel2.jpg',
+    stimulus: GITHUB_PAGES_BASE + 'raven_bsp_nurtafel2.jpg',
     choices: ['Enter'],
     stimulus_height: 500,
     prompt: `
@@ -223,7 +223,7 @@ const raven_practice_1_view = {
 
 const raven_practice_1_respond = {
     type: jsPsychImageKeyboardResponse,
-    stimulus: GITHUB_PAGES_BASE + 'Raven_Bsp.jpg',
+    stimulus: GITHUB_PAGES_BASE + 'raven_bsp.jpg',
     choices: ['1','2','3','4','5','6','7','8'],
     stimulus_height: 500,
     prompt: `
@@ -256,7 +256,7 @@ const raven_practice_feedback_1 = {
 
 const raven_practice_2_respond = {
     type: jsPsychImageKeyboardResponse,
-    stimulus: GITHUB_PAGES_BASE + 'Raven_Bsp2.jpg',
+    stimulus: GITHUB_PAGES_BASE + 'raven_bsp2.jpg',
     choices: ['1','2','3','4','5','6','7','8'],
     stimulus_height: 500,
     prompt: `
