@@ -185,7 +185,7 @@ const final_redirect_trial = {
 
         // 3. Construct Redirect URL
         // We use 'part1_id' to signal to Qualtrics that this is a returning participant
-        const base_url = 'https://duke.qualtrics.com/jfe/form/SV_3CRfinpvLk65sBU';
+        const base_url = 'https://duke.qualtrics.com/jfe/form/SV_6A3jqKXeNZx8oQK';
         const target = `${base_url}?part1_id=${response_id}&MoodleScore=${final_percent}`;
 
         console.log("Final Score:", final_percent);
