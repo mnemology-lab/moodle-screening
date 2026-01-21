@@ -132,6 +132,7 @@ fluency_categories.forEach((cat, index) => {
     // Timed fluency task - REVEAL CATEGORY
     fluency_timeline.push({
         type: jsPsychSurveyHtmlForm,
+        // UPDATED: Added onpaste="return false;" to prevent pasting from clipboard
         html: `
             <div style="color: white; text-align: center;">
                 <h2>Category: <span style="text-decoration: underline; color: #4CAF50;">${cat}</span></h2>
@@ -143,6 +144,7 @@ fluency_categories.forEach((cat, index) => {
 
                 <textarea id="resp" name="response" rows="15" cols="60"
                     style="font-size:18px; padding:10px; border-radius:5px;"
+                    onpaste="return false;"
                     autofocus></textarea>
 
                 <p id="timeout_msg"
@@ -304,7 +306,9 @@ const raven_procedure = {
             data.correct = (data.response === data.correct_key); 
         }
     }],
-    timeline_variables: raven_items.map(i => ({ ...i, stimulus: GITHUB_PAGES_BASE + i.stimulus }))
+    timeline_variables: raven_items.map(i => ({ ...i, stimulus: GITHUB_PAGES_BASE + i.stimulus })),
+    // UPDATED: Explicitly set random order to false
+    randomize_order: false
 };
 
 // -----------------------------------------------------------
@@ -409,7 +413,8 @@ const object_choice_template = {
 const moodle_procedure = {
     timeline: [fixation, mooney_image_template, category_choice_template, object_choice_template],
     timeline_variables: moodle_items.map(i => ({ ...i, stimulus: GITHUB_PAGES_BASE + i.stimulus })),
-    randomize_order: true 
+    // UPDATED: Changed from true to false
+    randomize_order: false 
 };
 
 // -----------------------------------------------------------
@@ -431,23 +436,27 @@ const final_redirect = {
         // A) FLUENCY
         const fluencyTrials = jsPsych.data.get().filter({task: "fluency"}).values();
         const fluencyScore = fluencyTrials.reduce((sum, trial) => sum + (trial.word_count || 0), 0);
-        // Combine all raw text into one string (Example: "Cat1: dog, cat | Cat2: tree, bush")
+        // Combine all raw text into one string
         const fluencyRaw = fluencyTrials.map(t => `${t.category}: ${t.raw_text}`).join(' | ');
 
         // B) RAVEN
         const ravenTrials = jsPsych.data.get().filter({task: "raven"}).values();
         const ravenScore = ravenTrials.filter(t => t.correct).length;
-        // Create a string of results (e.g., "10111" where 1=correct, 0=incorrect)
+        // Create a string of results
         const ravenRaw = ravenTrials.map(t => t.correct ? '1' : '0').join('');
 
-        // C) MOODLE (Strict Scoring: Cat + Obj must be correct)
+        // C) MOODLE (UPDATED Logic)
         const moodleAttempts = jsPsych.data.get().filter({task_part: 'Image_Recognition'});
+        
         let moodleStrictCorrect = 0;
-        let moodleRawData = []; 
+        let moodleCatData = [];
+        let moodleObjData = [];
 
         moodleAttempts.values().forEach(imgTrial => {
             if (!imgTrial.object_identified) {
-                moodleRawData.push('0'); // Skipped
+                // Participated didn't identify image -> both incorrect/skipped
+                moodleCatData.push('0');
+                moodleObjData.push('0');
                 return;
             }
 
@@ -456,17 +465,28 @@ const final_redirect = {
             const catTrial = nextTrials.find(t => t.task_part === 'Moodle_Cat');
             const objTrial = nextTrials.find(t => t.task === 'Moodle_Obj');
 
-            // Strict scoring check
+            // 1. Separate raw data collection
+            if (catTrial && catTrial.correct) {
+                moodleCatData.push('1');
+            } else {
+                moodleCatData.push('0');
+            }
+
+            if (objTrial && objTrial.correct) {
+                moodleObjData.push('1');
+            } else {
+                moodleObjData.push('0');
+            }
+
+            // 2. Strict scoring check for TOTAL SCORE (unchanged)
             if (catTrial && catTrial.correct && objTrial && objTrial.correct) {
                 moodleStrictCorrect++;
-                moodleRawData.push('1');
-            } else {
-                moodleRawData.push('0');
             }
         });
 
         const moodleScore = (moodleStrictCorrect / 8).toFixed(2); // Fraction of 8
-        const moodleRaw = moodleRawData.join('');
+        const moodleCatRaw = moodleCatData.join('');
+        const moodleObjRaw = moodleObjData.join('');
 
         // --- 3. Build URL ---
         let safeFluencyRaw = fluencyRaw;
@@ -477,12 +497,14 @@ const final_redirect = {
 
         const baseUrl = "https://duke.qualtrics.com/jfe/form/SV_3gFtKzZ3XQOGBTw";
         
+        // UPDATED: Replaced MoodleRaw with MoodleCatRaw and MoodleObjRaw
         const redirectUrl = `${baseUrl}?part1_ID=${resId}` +
                             `&FluencyScore=${fluencyScore}` +
                             `&RavenScore=${ravenScore}` +
                             `&MoodleScore=${moodleScore}` +
                             `&RavenRaw=${ravenRaw}` +
-                            `&MoodleRaw=${moodleRaw}` +
+                            `&MoodleCatRaw=${moodleCatRaw}` +
+                            `&MoodleObjRaw=${moodleObjRaw}` +
                             `&FluencyRaw=${encodeURIComponent(safeFluencyRaw)}`;
         
         console.log("Redirecting to:", redirectUrl);
