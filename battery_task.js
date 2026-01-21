@@ -37,14 +37,14 @@ const raven_items = [
     { stimulus: 'raven31.jpg', correct: '5' }, { stimulus: 'raven35.jpg', correct: '4' }
 ];
 
-// --- Raven Practice Items (derived from .iqx) ---
+// --- Raven Practice Items ---
 const raven_practice_images = [
     'raven_bsp_nurtafel2.jpg', 
     'raven_bsp.jpg', 
     'raven_bsp2.jpg'
 ];
 
-// --- Moodle Items (Copied from experiment_final.js) ---
+// --- Moodle Items ---
 const moodle_items = [
     { stimulus: 'A_cougar_sigma_3.jpg', correct_category_key: '1', correct_object_key: '3', category_choices: '1) mammal\n2) insect\n3) reptile\n4) household item\n5) bird', object_choices: '1) bunny\n2) rat\n3) cougar\n4) mountain\n5) crocodile' },
     { stimulus: 'A_bee_sigma_7.jpg', correct_category_key: '1', correct_object_key: '3', category_choices: '1) insect\n2) mammal\n3) reptile\n4) household item\n5) bird', object_choices: '1) spider\n2) cactus\n3) bee\n4) clown\n5) octopus' },
@@ -112,24 +112,29 @@ const fluency_instructions = {
 
 let fluency_timeline = [fluency_instructions];
 
-["Animals", "Plants"].forEach(cat => {
+// FIX #1: We use an index to show generic prompts ("Category 1") instead of names.
+const fluency_categories = ["Animals", "Plants"];
 
-    // Prompt screen
+fluency_categories.forEach((cat, index) => {
+
+    // Prompt screen - HIDDEN CATEGORY
     fluency_timeline.push({
         type: jsPsychHtmlKeyboardResponse,
         stimulus: `
-            <h2 style="color:white;">Category: ${cat}</h2>
-            <p style="color:white;">Press Enter to start the 90-second timer.</p>
+            <h2 style="color:white;">Category ${index + 1}</h2>
+            <p style="color:white; font-size: 20px;">
+                Press <strong>Enter</strong> to reveal the category name and start the 90-second timer immediately.
+            </p>
         `,
         choices: ['Enter']
     });
 
-    // Timed fluency task
+    // Timed fluency task - REVEAL CATEGORY
     fluency_timeline.push({
         type: jsPsychSurveyHtmlForm,
         html: `
             <div style="color: white; text-align: center;">
-                <h2>Category: <span style="text-decoration: underline;">${cat}</span></h2>
+                <h2>Category: <span style="text-decoration: underline; color: #4CAF50;">${cat}</span></h2>
 
                 <div id="timer_display"
                      style="font-size:24px; font-weight:bold; color:#FF5733; margin-bottom:10px;">
@@ -150,13 +155,14 @@ let fluency_timeline = [fluency_instructions];
                 #jspsych-survey-html-form-next { display: none; }
             </style>
         `,
-        trial_duration: 90000, // backup safety
+        trial_duration: 90000, // 90 seconds
         on_load: function() {
-            let time_left = 90;
+            let time_left = 90; // Set to 90 for actual experiment
             const textarea = document.getElementById('resp');
             const display = document.getElementById('timer_display');
             const msg = document.getElementById('timeout_msg');
 
+            // Timer logic
             const interval = setInterval(() => {
                 time_left--;
                 display.textContent = `Time Remaining: ${time_left}`;
@@ -174,6 +180,7 @@ let fluency_timeline = [fluency_instructions];
         },
         on_finish: function(data) {
             const text = (data.response.response || "").trim();
+            // Basic word count for immediate scoring
             const words = text
                 .split(/[\n,]+/)
                 .map(w => w.trim())
@@ -182,16 +189,16 @@ let fluency_timeline = [fluency_instructions];
             data.word_count = words.length;
             data.task = "fluency";
             data.category = cat;
+            // Store raw text for export
+            data.raw_text = text.replace(/[\n\r]+/g, " "); // Flatten newlines
         }
     });
 });
 
 
 // -----------------------------------------------------------
-// 5. TASK 2: RAVEN'S MATRICES (Instructions, Practice, & Task)
+// 5. TASK 2: RAVEN'S MATRICES
 // -----------------------------------------------------------
-
-// --- 5a. Raven Instructions & Practice (Translated from .iqx) ---
 
 const raven_intro_1 = {
     type: jsPsychHtmlKeyboardResponse,
@@ -199,9 +206,7 @@ const raven_intro_1 = {
         <h2 style="color:white;">Part 2: Completing Patterns</h2>
         <div style="color:white; text-align:left; max-width:800px; margin:auto; font-size:18px;">
             <p>In this part of the experiment, you will see 12 panels, each containing an incomplete pattern.</p>
-            <p>Each panel consists of 3x3 individual images that form a pattern.</p>
-            <p>A part of this pattern has been cut out; i.e., the individual image in the bottom-right section of the panel is always missing.</p>
-            <p>On the next page, you will see what such a pattern can look like.</p>
+            <p>Choose the answer option that correctly completes the pattern.</p>
         </div>
         <p style="color:white; margin-top:30px;">Press <strong>Enter</strong> to continue.</p>
     `,
@@ -213,12 +218,7 @@ const raven_practice_1_view = {
     stimulus: GITHUB_PAGES_BASE + 'raven_bsp_nurtafel2.jpg',
     choices: ['Enter'],
     stimulus_height: 500,
-    prompt: `
-        <div style="color:white; max-width:800px; margin:20px auto;">
-            <p>In addition, below each panel you will be given 8 answer options, of which only one correctly completes the pattern.</p>
-            <p>Press <strong>Enter</strong> to see the options.</p>
-        </div>
-    `
+    prompt: `<p style="color:white;">Press <strong>Enter</strong> to see the options.</p>`
 };
 
 const raven_practice_1_respond = {
@@ -226,30 +226,16 @@ const raven_practice_1_respond = {
     stimulus: GITHUB_PAGES_BASE + 'raven_bsp.jpg',
     choices: ['1','2','3','4','5','6','7','8'],
     stimulus_height: 500,
-    prompt: `
-        <div style="color:white; max-width:800px; margin:20px auto;">
-            <p>Look at the pattern and think about which of the 8 answer options correctly completes it.</p>
-            <p>Press the corresponding key (<strong>1–8</strong>) to select your answer.</p>
-        </div>
-    `,
-    data: { task: "raven_practice", correct_key: '8' } // IQX Intro 4 says solution is 8
+    prompt: `<p style="color:white;">Press <strong>1–8</strong> to select your answer.</p>`,
+    data: { task: "raven_practice" }
 };
 
 const raven_practice_feedback_1 = {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: `
         <h2 style="color:white;">Practice Feedback</h2>
-        <div style="color:white; text-align:left; max-width:800px; margin:auto; font-size:18px;">
-            <p>In this example, the correct solution was number <strong>8</strong>.</p>
-            <p>The individual images on each panel follow a systematic rule-based relationship.</p>
-            <ul>
-                <li>Look at each row (horizontally) and decide what the solution should look like.</li>
-                <li>Then look at each column (vertically) and decide again.</li>
-            </ul>
-            <p>Finally, choose the answer option that works for both directions.</p>
-            <p>Let's try one more practice puzzle.</p>
-        </div>
-        <p style="color:white; margin-top:30px;">Press <strong>Enter</strong> to continue.</p>
+        <p style="color:white;">In this example, the correct solution was number <strong>8</strong>.</p>
+        <p style="color:white;">Press <strong>Enter</strong> to try one more.</p>
     `,
     choices: ['Enter']
 };
@@ -259,42 +245,28 @@ const raven_practice_2_respond = {
     stimulus: GITHUB_PAGES_BASE + 'raven_bsp2.jpg',
     choices: ['1','2','3','4','5','6','7','8'],
     stimulus_height: 500,
-    prompt: `
-        <div style="color:white; max-width:800px; margin:20px auto;">
-            <p>Which piece completes this pattern?</p>
-            <p>Press <strong>1–8</strong>.</p>
-        </div>
-    `,
-    data: { task: "raven_practice", correct_key: '4' } // IQX Intro 5 says solution is 4
+    prompt: `<p style="color:white;">Press <strong>1–8</strong>.</p>`,
+    data: { task: "raven_practice" }
 };
 
 const raven_practice_feedback_2 = {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: `
         <h2 style="color:white;">Ready to start?</h2>
-        <div style="color:white; text-align:left; max-width:800px; margin:auto; font-size:18px;">
-            <p>In this example, the correct solution was number <strong>4</strong>.</p>
-            <p>You will now begin the actual task.</p>
-            <ul>
-                <li>You have a maximum of <strong>100 seconds</strong> to solve each panel.</li>
-                <li>If you have not found a solution by then, a new panel will be presented.</li>
-                <li>Accuracy is what matters. Try to solve them in order.</li>
-            </ul>
-        </div>
+        <p style="color:white;">The correct solution was number <strong>4</strong>.</p>
+        <p style="color:white;">You have <strong>100 seconds</strong> per puzzle.</p>
         <p style="color:white; margin-top:30px;">Press <strong>Enter</strong> to begin the Raven task.</p>
     `,
     choices: ['Enter']
 };
-
-// --- 5b. Raven Main Procedure ---
 
 const raven_procedure = {
     timeline: [{
         type: jsPsychImageKeyboardResponse,
         stimulus: jsPsych.timelineVariable('stimulus'),
         choices: ['1','2','3','4','5','6','7','8'],
-        stimulus_height: 600, // Ensure images fit
-        trial_duration: 100000, // 100 seconds per trial as per IQX
+        stimulus_height: 600,
+        trial_duration: 100000, 
         prompt: "<p style='color:white;'>Choose the piece (1-8) that completes the pattern.</p>",
         data: { task: "raven", correct_key: jsPsych.timelineVariable('correct') },
         on_finish: (data) => { 
@@ -305,7 +277,7 @@ const raven_procedure = {
 };
 
 // -----------------------------------------------------------
-// 6. TASK 3: MOODLE SCREENING (Logic from experiment_final.js)
+// 6. TASK 3: MOODLE SCREENING
 // -----------------------------------------------------------
 
 const moodle_instructions = {
@@ -313,13 +285,12 @@ const moodle_instructions = {
     stimulus: `
         <h2 style="color:white;">Part 3: Object Recognition</h2>
         <div style="color:white; text-align:left; max-width:800px; margin:auto; font-size:18px;">
-            <p>You will see black-and-white pictures (Mooney images). Each picture hides a familiar object.</p>
-            <p><strong>Step 1:</strong> Press <strong>Enter</strong> the moment you identify the object (Max 18 seconds).</p>
-            <p><strong>Step 2:</strong> Choose the correct category (e.g., mammal, bird).</p>
-            <p><strong>Step 3:</strong> Choose the exact object name.</p>
-            <p>For Steps 2 and 3, use the number keys <strong>1-5</strong>. You have 10 seconds for each choice.</p>
+            <p>You will see black-and-white pictures. Each picture hides a familiar object.</p>
+            <p><strong>Step 1:</strong> Press <strong>Enter</strong> the moment you identify the object (Max 18s).</p>
+            <p><strong>Step 2:</strong> Choose the Category (1-5).</p>
+            <p><strong>Step 3:</strong> Choose the Object Name (1-5).</p>
         </div>
-        <p style="color:white; margin-top:30px;">Press <strong>Enter</strong> to start the final task.</p>
+        <p style="color:white; margin-top:30px;">Press <strong>Enter</strong> to start.</p>
     `,
     choices: ['Enter']
 };
@@ -331,7 +302,7 @@ const fixation = {
     trial_duration: 500
 };
 
-// 1. Show Image (Max 18s) - Press Enter if recognized
+// 1. Show Image
 const mooney_image_template = {
     type: jsPsychImageKeyboardResponse,
     stimulus: jsPsych.timelineVariable('stimulus'),
@@ -339,7 +310,7 @@ const mooney_image_template = {
     render_on_canvas: false,
     stimulus_height: 600, 
     trial_duration: 18000, 
-    prompt: '<p style="color: white;">Press <strong>Enter</strong> the moment you identify the object.</p>',
+    prompt: '<p style="color: white;">Press <strong>Enter</strong> if you identify the object.</p>',
     data: { 
         task_part: 'Image_Recognition',
         correct_category_key: jsPsych.timelineVariable('correct_category_key'),
@@ -350,16 +321,15 @@ const mooney_image_template = {
     }
 };
 
-// 2. Category Choice (10s) - Only if identified
+// 2. Category Choice
 const category_choice_template = {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: function(){
         return `
             <div style="text-align: left; color: white; max-width: 800px; margin: auto;">
                 <h2>Category Choice</h2>
-                <p>What category is the object from?</p>
                 <pre style="font-size: 20px; background: #333; padding: 15px;">${jsPsych.timelineVariable('category_choices')}</pre>
-                <p>Press the corresponding number key (1-5).</p>
+                <p>Press 1-5.</p>
             </div>
         `;
     },
@@ -370,37 +340,33 @@ const category_choice_template = {
         data.correct = (data.response === data.correct_A);
     },
     conditional_function: function() {
-        // Only run if they pressed Enter in the previous trial
         const prev_data = jsPsych.data.get().last(1).values[0];
         return prev_data.object_identified;
     }
 };
 
-// 3. Object Choice (10s) - Only if identified
+// 3. Object Choice
 const object_choice_template = {
     type: jsPsychHtmlKeyboardResponse,
     stimulus: function(){
         return `
             <div style="text-align: left; color: white; max-width: 800px; margin: auto;">
                 <h2>Object Choice</h2>
-                <p>Which object did you see?</p>
                 <pre style="font-size: 20px; background: #333; padding: 15px;">${jsPsych.timelineVariable('object_choices')}</pre>
-                <p>Press the corresponding number key (1-5).</p>
+                <p>Press 1-5.</p>
             </div>
         `;
     },
     choices: ['1', '2', '3', '4', '5'],
     trial_duration: 10000,
     data: { 
-        task: 'Moodle_Obj', // Used for scoring
+        task: 'Moodle_Obj', 
         correct_B: jsPsych.timelineVariable('correct_object_key') 
     },
     on_finish: function(data) {
         data.correct = (data.response === data.correct_B);
     },
     conditional_function: function() {
-        // Look back 2 trials (Image trial) to check if identified
-        // Note: We filter by task_part to find the specific image trial
         const image_trial_data = jsPsych.data.get().filter({task_part: 'Image_Recognition'}).last(1).values[0];
         return image_trial_data && image_trial_data.object_identified;
     }
@@ -409,11 +375,11 @@ const object_choice_template = {
 const moodle_procedure = {
     timeline: [fixation, mooney_image_template, category_choice_template, object_choice_template],
     timeline_variables: moodle_items.map(i => ({ ...i, stimulus: GITHUB_PAGES_BASE + i.stimulus })),
-    randomize_order: true
+    randomize_order: true 
 };
 
 // -----------------------------------------------------------
-// 7. COMPLETION & QUALTRICS REDIRECT
+// 7. COMPLETION & QUALTRICS REDIRECT (Updated for Scoring & Raw Data)
 // -----------------------------------------------------------
 
 const final_redirect = {
@@ -422,27 +388,81 @@ const final_redirect = {
     choices: "NO_KEYS",
     trial_duration: 3000,
     on_finish: () => {
-        // --- SCORING ---
-        // Fluency: Sum of word counts
-        const fluencyScore = jsPsych.data.get().filter({task: "fluency"}).select('word_count').sum();
-        
-        // Raven: Count correct answers
-        const ravenScore = jsPsych.data.get().filter({task: "raven", correct: true}).count();
-        
-        // Moodle: Percentage correct (only counting the final object identification)
-        // Note: Using 8 as denominator as there are 8 trials
-        const moodleCorrect = jsPsych.data.get().filter({task: 'Moodle_Obj', correct: true}).count();
-        const moodleScore = (moodleCorrect / 8).toFixed(2);
-        
-        // --- REDIRECT ---
-        // 1. Get ID from URL (input parameter 'participant')
+        // --- 1. Get ID ---
         let resId = getParameterByName('participant');
         if (!resId || resId === 'null') { resId = 'NO_ID'; }
 
-        // 2. Build URL (Output parameter 'part1_ID' capitalized)
+        // --- 2. Calculate SCORING & RAW DATA ---
+        
+        // A) FLUENCY
+        const fluencyTrials = jsPsych.data.get().filter({task: "fluency"}).values();
+        const fluencyScore = fluencyTrials.reduce((sum, trial) => sum + (trial.word_count || 0), 0);
+        // Combine all raw text into one string (Example: "Cat1: dog, cat | Cat2: tree, bush")
+        const fluencyRaw = fluencyTrials.map(t => `${t.category}: ${t.raw_text}`).join(' | ');
+
+        // B) RAVEN
+        const ravenTrials = jsPsych.data.get().filter({task: "raven"}).values();
+        const ravenScore = ravenTrials.filter(t => t.correct).length;
+        // Create a string of results (e.g., "10111" where 1=correct, 0=incorrect)
+        // We use map to extract correctness (1 or 0) and join them.
+        const ravenRaw = ravenTrials.map(t => t.correct ? '1' : '0').join('');
+
+        // C) MOODLE (Strict Scoring: Cat + Obj must be correct)
+        // We need to pair the Category trial with the Object trial.
+        // We filter for the identification trials to define the loop.
+        const moodleAttempts = jsPsych.data.get().filter({task_part: 'Image_Recognition'});
+        let moodleStrictCorrect = 0;
+        let moodleRawData = []; // To store 1 or 0 for each image
+
+        // Iterate through every image shown
+        moodleAttempts.values().forEach(imgTrial => {
+            // Find the subsequent Category and Object trials for this specific image
+            // We use the timestamp or trial_index to ensure we look *after* the image trial
+            
+            // Check if identified
+            if (!imgTrial.object_identified) {
+                moodleRawData.push('0'); // Skipped, so incorrect
+                return;
+            }
+
+            // Get the next 2 trials (Cat and Obj)
+            // Note: In timeline, they strictly follow Image.
+            // Safe method: Look for trials that happened immediately after this trial index
+            const nextTrials = jsPsych.data.get().filterCustom(t => t.trial_index > imgTrial.trial_index && t.trial_index <= imgTrial.trial_index + 2).values();
+            
+            const catTrial = nextTrials.find(t => t.task_part === 'Moodle_Cat');
+            const objTrial = nextTrials.find(t => t.task === 'Moodle_Obj');
+
+            // Strict scoring check
+            if (catTrial && catTrial.correct && objTrial && objTrial.correct) {
+                moodleStrictCorrect++;
+                moodleRawData.push('1');
+            } else {
+                moodleRawData.push('0');
+            }
+        });
+
+        const moodleScore = (moodleStrictCorrect / 8).toFixed(2); // Fraction of 8
+        const moodleRaw = moodleRawData.join('');
+
+        // --- 3. Build URL ---
+        // Warning: URLs have a length limit (approx 2000 chars). Fluency text can be long.
+        // We truncate fluencyRaw if it's dangerously long to prevent the redirect from breaking.
+        let safeFluencyRaw = fluencyRaw;
+        if (safeFluencyRaw.length > 1000) {
+            safeFluencyRaw = safeFluencyRaw.substring(0, 1000) + "...(TRUNCATED)";
+        }
+
         const baseUrl = "https://duke.qualtrics.com/jfe/form/SV_3gFtKzZ3XQOGBTw";
-        // Ensure variable names match Qualtrics Embedded Data exactly
-        const redirectUrl = `${baseUrl}?part1_ID=${resId}&FluencyScore=${fluencyScore}&RavenScore=${ravenScore}&MoodleScore=${moodleScore}`;
+        
+        // We use encodeURIComponent to ensure special characters (spaces, commas) don't break the URL
+        const redirectUrl = `${baseUrl}?part1_ID=${resId}` +
+                            `&FluencyScore=${fluencyScore}` +
+                            `&RavenScore=${ravenScore}` +
+                            `&MoodleScore=${moodleScore}` +
+                            `&RavenRaw=${ravenRaw}` +
+                            `&MoodleRaw=${moodleRaw}` +
+                            `&FluencyRaw=${encodeURIComponent(safeFluencyRaw)}`;
         
         console.log("Redirecting to:", redirectUrl);
         window.location.replace(redirectUrl);
@@ -453,13 +473,10 @@ const final_redirect = {
 // 8. RUN EXPERIMENT
 // -----------------------------------------------------------
 
-// Assemble the full timeline
 const timeline = [
     preload,
     general_intro,
     ...fluency_timeline,
-    
-    // Updated Raven Sequence
     raven_intro_1,
     raven_practice_1_view,
     raven_practice_1_respond,
@@ -467,7 +484,6 @@ const timeline = [
     raven_practice_2_respond,
     raven_practice_feedback_2,
     raven_procedure,
-    
     moodle_instructions,
     moodle_procedure,
     final_redirect
