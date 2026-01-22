@@ -46,7 +46,7 @@ const raven_items = [
 
 // --- Raven Practice Items ---
 const raven_practice_images = [
-    'raven_bsp_nurTafel2.jpg', 
+    'raven_bsp_nurtafel2.jpg', 
     'raven_bsp2.jpg', 
     'raven_bsp.jpg'
 ];
@@ -220,10 +220,10 @@ const raven_intro_1 = {
     choices: ['Enter']
 };
 
-// Practice 1: View Only (Raven_Bsp_nurTafel2.jpg) - Matches Inquisit "Intro1"
+// Practice 1: View Only (raven_bsp_nurtafel2.jpg) - Matches Inquisit "Intro1"
 const raven_practice_1_view = {
     type: jsPsychImageKeyboardResponse,
-    stimulus: GITHUB_PAGES_BASE + 'Raven_Bsp_nurTafel2.jpg',
+    stimulus: GITHUB_PAGES_BASE + 'raven_bsp_nurtafel2.jpg',
     choices: ['Enter'],
     stimulus_height: 500,
     prompt: `
@@ -234,10 +234,10 @@ const raven_practice_1_view = {
     `
 };
 
-// Practice 2: View Only (Raven_Bsp2.jpg) - Matches Inquisit "Intro2"
+// Practice 2: View Only (raven_bsp2.jpg) - Matches Inquisit "Intro2"
 const raven_practice_2_view = {
     type: jsPsychImageKeyboardResponse,
-    stimulus: GITHUB_PAGES_BASE + 'Raven_Bsp2.jpg',
+    stimulus: GITHUB_PAGES_BASE + 'raven_bsp2.jpg',
     choices: ['Enter'],
     stimulus_height: 500,
     prompt: `
@@ -248,10 +248,10 @@ const raven_practice_2_view = {
     `
 };
 
-// Practice 3: Respond (Raven_Bsp2.jpg) - Matches Inquisit "Intro3"
+// Practice 3: Respond (raven_bsp2.jpg) - Matches Inquisit "Intro3"
 const raven_practice_2_respond = {
     type: jsPsychImageKeyboardResponse,
-    stimulus: GITHUB_PAGES_BASE + 'Raven_Bsp2.jpg',
+    stimulus: GITHUB_PAGES_BASE + 'raven_bsp2.jpg',
     choices: ['1','2','3','4','5','6','7','8'],
     stimulus_height: 500,
     prompt: `
@@ -282,10 +282,10 @@ const raven_practice_feedback_1 = {
     choices: ['Enter']
 };
 
-// Practice 4: Respond (Raven_Bsp.jpg) - Matches Inquisit "Intro4"
+// Practice 4: Respond (raven_bsp.jpg) - Matches Inquisit "Intro4"
 const raven_practice_3_respond = {
     type: jsPsychImageKeyboardResponse,
-    stimulus: GITHUB_PAGES_BASE + 'Raven_Bsp.jpg',
+    stimulus: GITHUB_PAGES_BASE + 'raven_bsp.jpg',
     choices: ['1','2','3','4','5','6','7','8'],
     stimulus_height: 500,
     prompt: `
