@@ -30,25 +30,25 @@ function getParameterByName(name, url = window.location.href) {
 // --- Raven Items (Corrected based on Inquisit Scancodes) ---
 // Note: Inquisit Scancodes map to position (2='1', 3='2'... 6='5'... 9='8')
 const raven_items = [
-    { stimulus: 'Raven1.JPG',  correct: '5' }, // Inquisit R01 (code 6 -> Key 5)
-    { stimulus: 'Raven4.JPG',  correct: '4' }, // Inquisit R02 (code 5 -> Key 4)
-    { stimulus: 'Raven8.JPG',  correct: '1' }, // Inquisit R03 (code 2 -> Key 1)
-    { stimulus: 'Raven11.JPG', correct: '5' }, // Inquisit R04 (code 6 -> Key 5)
-    { stimulus: 'Raven15.JPG', correct: '2' }, // Inquisit R05 (code 3 -> Key 2)
-    { stimulus: 'Raven18.JPG', correct: '7' }, // Inquisit R06 (code 8 -> Key 7)
-    { stimulus: 'Raven21.JPG', correct: '8' }, // Inquisit R07 (code 9 -> Key 8)
-    { stimulus: 'Raven23.JPG', correct: '6' }, // Inquisit R08 (code 7 -> Key 6)
-    { stimulus: 'Raven25.JPG', correct: '7' }, // Inquisit R09 (code 8 -> Key 7)
-    { stimulus: 'Raven30.JPG', correct: '5' }, // Inquisit R10 (code 6 -> Key 5)
-    { stimulus: 'Raven31.JPG', correct: '4' }, // Inquisit R11 (code 5 -> Key 4)
-    { stimulus: 'Raven35.JPG', correct: '3' }  // Inquisit R12 (code 4 -> Key 3)
+    { stimulus: 'raven1.jpg',  correct: '5' }, // Inquisit R01 (code 6 -> Key 5)
+    { stimulus: 'raven4.jpg',  correct: '4' }, // Inquisit R02 (code 5 -> Key 4)
+    { stimulus: 'raven8.jpg',  correct: '1' }, // Inquisit R03 (code 2 -> Key 1)
+    { stimulus: 'raven11.jpg', correct: '5' }, // Inquisit R04 (code 6 -> Key 5)
+    { stimulus: 'raven15.jpg', correct: '2' }, // Inquisit R05 (code 3 -> Key 2)
+    { stimulus: 'raven18.jpg', correct: '7' }, // Inquisit R06 (code 8 -> Key 7)
+    { stimulus: 'raven21.jpg', correct: '8' }, // Inquisit R07 (code 9 -> Key 8)
+    { stimulus: 'raven23.jpg', correct: '6' }, // Inquisit R08 (code 7 -> Key 6)
+    { stimulus: 'raven25.jpg', correct: '7' }, // Inquisit R09 (code 8 -> Key 7)
+    { stimulus: 'raven30.jpg', correct: '5' }, // Inquisit R10 (code 6 -> Key 5)
+    { stimulus: 'raven31.jpg', correct: '4' }, // Inquisit R11 (code 5 -> Key 4)
+    { stimulus: 'raven35.jpg', correct: '3' }  // Inquisit R12 (code 4 -> Key 3)
 ];
 
 // --- Raven Practice Items ---
 const raven_practice_images = [
-    'Raven_Bsp_nurTafel2.jpg', 
-    'Raven_Bsp2.jpg', 
-    'Raven_Bsp.jpg'
+    'raven_Bsp_nurTafel2.jpg', 
+    'raven_Bsp2.jpg', 
+    'raven_Bsp.jpg'
 ];
 
 // --- Moodle Items ---
