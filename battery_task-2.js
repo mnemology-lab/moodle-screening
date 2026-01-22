@@ -27,21 +27,28 @@ function getParameterByName(name, url = window.location.href) {
 // 2. STIMULI & ITEMS
 // -----------------------------------------------------------
 
-// --- Raven Items ---
+// --- Raven Items (Corrected based on Inquisit Scancodes) ---
+// Note: Inquisit Scancodes map to position (2='1', 3='2'... 6='5'... 9='8')
 const raven_items = [
-    { stimulus: 'raven1.jpg', correct: '6' }, { stimulus: 'raven4.jpg', correct: '5' },
-    { stimulus: 'raven8.jpg', correct: '2' }, { stimulus: 'raven11.jpg', correct: '6' },
-    { stimulus: 'raven15.jpg', correct: '3' }, { stimulus: 'raven18.jpg', correct: '8' },
-    { stimulus: 'raven21.jpg', correct: '8' }, { stimulus: 'raven23.jpg', correct: '7' },
-    { stimulus: 'raven25.jpg', correct: '8' }, { stimulus: 'raven30.jpg', correct: '6' },
-    { stimulus: 'raven31.jpg', correct: '5' }, { stimulus: 'raven35.jpg', correct: '4' }
+    { stimulus: 'raven1.jpg',  correct: '5' }, // Inquisit R01 (code 6 -> Key 5)
+    { stimulus: 'raven4.jpg',  correct: '4' }, // Inquisit R02 (code 5 -> Key 4)
+    { stimulus: 'raven8.jpg',  correct: '1' }, // Inquisit R03 (code 2 -> Key 1)
+    { stimulus: 'raven11.jpg', correct: '5' }, // Inquisit R04 (code 6 -> Key 5)
+    { stimulus: 'raven15.jpg', correct: '2' }, // Inquisit R05 (code 3 -> Key 2)
+    { stimulus: 'raven18.jpg', correct: '7' }, // Inquisit R06 (code 8 -> Key 7)
+    { stimulus: 'raven21.jpg', correct: '8' }, // Inquisit R07 (code 9 -> Key 8)
+    { stimulus: 'raven23.jpg', correct: '6' }, // Inquisit R08 (code 7 -> Key 6)
+    { stimulus: 'raven25.jpg', correct: '7' }, // Inquisit R09 (code 8 -> Key 7)
+    { stimulus: 'raven30.jpg', correct: '5' }, // Inquisit R10 (code 6 -> Key 5)
+    { stimulus: 'raven31.jpg', correct: '4' }, // Inquisit R11 (code 5 -> Key 4)
+    { stimulus: 'raven35.jpg', correct: '3' }  // Inquisit R12 (code 4 -> Key 3)
 ];
 
 // --- Raven Practice Items ---
 const raven_practice_images = [
     'raven_bsp_nurtafel2.jpg', 
-    'raven_bsp.jpg', 
-    'raven_bsp2.jpg'
+    'raven_bsp2.jpg', 
+    'raven_bsp.jpg'
 ];
 
 // --- Moodle Items ---
@@ -112,7 +119,7 @@ const fluency_instructions = {
 
 let fluency_timeline = [fluency_instructions];
 
-// EDIT: Using index to mask category name until timer starts
+// Using index to mask category name until timer starts
 const fluency_categories = ["Animals", "Plants"];
 
 fluency_categories.forEach((cat, index) => {
@@ -132,7 +139,6 @@ fluency_categories.forEach((cat, index) => {
     // Timed fluency task - REVEAL CATEGORY
     fluency_timeline.push({
         type: jsPsychSurveyHtmlForm,
-        // UPDATED: Added onpaste="return false;" to prevent pasting from clipboard
         html: `
             <div style="color: white; text-align: center;">
                 <h2>Category: <span style="text-decoration: underline; color: #4CAF50;">${cat}</span></h2>
@@ -189,7 +195,6 @@ fluency_categories.forEach((cat, index) => {
             data.word_count = words.length;
             data.task = "fluency";
             data.category = cat;
-            // Store raw text for export
             data.raw_text = text.replace(/[\n\r]+/g, " "); 
         }
     });
@@ -197,7 +202,7 @@ fluency_categories.forEach((cat, index) => {
 
 
 // -----------------------------------------------------------
-// 5. TASK 2: RAVEN'S MATRICES
+// 5. TASK 2: RAVEN'S MATRICES (Inquisit Structure)
 // -----------------------------------------------------------
 
 const raven_intro_1 = {
@@ -215,6 +220,7 @@ const raven_intro_1 = {
     choices: ['Enter']
 };
 
+// Practice 1: View Only (raven_bsp_nurtafel2.jpg) - Matches Inquisit "Intro1"
 const raven_practice_1_view = {
     type: jsPsychImageKeyboardResponse,
     stimulus: GITHUB_PAGES_BASE + 'raven_bsp_nurtafel2.jpg',
@@ -223,23 +229,38 @@ const raven_practice_1_view = {
     prompt: `
         <div style="color:white; max-width:800px; margin:20px auto;">
             <p>In addition, below each panel you will be given 8 answer options, of which only one correctly completes the pattern.</p>
-            <p>Press <strong>Enter</strong> to see the options.</p>
+            <p>Press <strong>Enter</strong> to take a look.</p>
         </div>
     `
 };
 
-const raven_practice_1_respond = {
+// Practice 2: View Only (raven_bsp2.jpg) - Matches Inquisit "Intro2"
+const raven_practice_2_view = {
     type: jsPsychImageKeyboardResponse,
-    stimulus: GITHUB_PAGES_BASE + 'raven_bsp.jpg',
-    choices: ['1','2','3','4','5','6','7','8'],
+    stimulus: GITHUB_PAGES_BASE + 'raven_bsp2.jpg',
+    choices: ['Enter'],
     stimulus_height: 500,
     prompt: `
         <div style="color:white; max-width:800px; margin:20px auto;">
             <p>Look at the pattern and think about which of the 8 answer options correctly completes it.</p>
+            <p>Press <strong>Enter</strong> to proceed to the selection screen.</p>
+        </div>
+    `
+};
+
+// Practice 3: Respond (raven_bsp2.jpg) - Matches Inquisit "Intro3"
+const raven_practice_2_respond = {
+    type: jsPsychImageKeyboardResponse,
+    stimulus: GITHUB_PAGES_BASE + 'raven_bsp2.jpg',
+    choices: ['1','2','3','4','5','6','7','8'],
+    stimulus_height: 500,
+    prompt: `
+        <div style="color:white; max-width:800px; margin:20px auto;">
+            <p>Which piece completes this pattern?</p>
             <p>Press the corresponding key (<strong>1–8</strong>) to select your answer.</p>
         </div>
     `,
-    data: { task: "raven_practice", correct_key: '8' } 
+    data: { task: "raven_practice", correct_key: '8' } // Matches Inquisit "scancode 9" (Key 8)
 };
 
 const raven_practice_feedback_1 = {
@@ -261,9 +282,10 @@ const raven_practice_feedback_1 = {
     choices: ['Enter']
 };
 
-const raven_practice_2_respond = {
+// Practice 4: Respond (raven_bsp.jpg) - Matches Inquisit "Intro4"
+const raven_practice_3_respond = {
     type: jsPsychImageKeyboardResponse,
-    stimulus: GITHUB_PAGES_BASE + 'raven_bsp2.jpg',
+    stimulus: GITHUB_PAGES_BASE + 'raven_bsp.jpg',
     choices: ['1','2','3','4','5','6','7','8'],
     stimulus_height: 500,
     prompt: `
@@ -272,7 +294,7 @@ const raven_practice_2_respond = {
             <p>Press <strong>1–8</strong>.</p>
         </div>
     `,
-    data: { task: "raven_practice", correct_key: '4' } 
+    data: { task: "raven_practice", correct_key: '4' } // Matches Inquisit "scancode 5" (Key 4)
 };
 
 const raven_practice_feedback_2 = {
@@ -307,7 +329,6 @@ const raven_procedure = {
         }
     }],
     timeline_variables: raven_items.map(i => ({ ...i, stimulus: GITHUB_PAGES_BASE + i.stimulus })),
-    // UPDATED: Explicitly set random order to false
     randomize_order: false
 };
 
@@ -413,12 +434,11 @@ const object_choice_template = {
 const moodle_procedure = {
     timeline: [fixation, mooney_image_template, category_choice_template, object_choice_template],
     timeline_variables: moodle_items.map(i => ({ ...i, stimulus: GITHUB_PAGES_BASE + i.stimulus })),
-    // UPDATED: Changed from true to false
     randomize_order: false 
 };
 
 // -----------------------------------------------------------
-// 7. COMPLETION & QUALTRICS REDIRECT (Updated for Scoring & Raw Data)
+// 7. COMPLETION & QUALTRICS REDIRECT
 // -----------------------------------------------------------
 
 const final_redirect = {
@@ -445,7 +465,7 @@ const final_redirect = {
         // Create a string of results
         const ravenRaw = ravenTrials.map(t => t.correct ? '1' : '0').join('');
 
-        // C) MOODLE (UPDATED Logic)
+        // C) MOODLE
         const moodleAttempts = jsPsych.data.get().filter({task_part: 'Image_Recognition'});
         
         let moodleStrictCorrect = 0;
@@ -478,7 +498,7 @@ const final_redirect = {
                 moodleObjData.push('0');
             }
 
-            // 2. Strict scoring check for TOTAL SCORE (unchanged)
+            // 2. Strict scoring check for TOTAL SCORE
             if (catTrial && catTrial.correct && objTrial && objTrial.correct) {
                 moodleStrictCorrect++;
             }
@@ -497,7 +517,6 @@ const final_redirect = {
 
         const baseUrl = "https://duke.qualtrics.com/jfe/form/SV_6A3jqKXeNZx8oQK";
         
-        // UPDATED: Replaced MoodleRaw with MoodleCatRaw and MoodleObjRaw
         const redirectUrl = `${baseUrl}?part1_ID=${resId}` +
                             `&FluencyScore=${fluencyScore}` +
                             `&RavenScore=${ravenScore}` +
@@ -522,9 +541,10 @@ const timeline = [
     ...fluency_timeline,
     raven_intro_1,
     raven_practice_1_view,
-    raven_practice_1_respond,
-    raven_practice_feedback_1,
+    raven_practice_2_view,
     raven_practice_2_respond,
+    raven_practice_feedback_1,
+    raven_practice_3_respond,
     raven_practice_feedback_2,
     raven_procedure,
     moodle_instructions,
