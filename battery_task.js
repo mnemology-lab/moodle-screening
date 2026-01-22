@@ -46,9 +46,9 @@ const raven_items = [
 
 // --- Raven Practice Items ---
 const raven_practice_images = [
-    'raven_Bsp_nurTafel2.jpg', 
-    'raven_Bsp2.jpg', 
-    'raven_Bsp.jpg'
+    'raven_bsp_nurTafel2.jpg', 
+    'raven_bsp2.jpg', 
+    'raven_bsp.jpg'
 ];
 
 // --- Moodle Items ---
